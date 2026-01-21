@@ -1,8 +1,7 @@
-
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Shield, Lock, AlertTriangle, Key, Eye, RefreshCw, Moon, Sun, ArrowLeft } from 'lucide-react';
 import { useTheme } from '../../contexts/theme-context';
-
 
 const SecurityRisksPage = () => {
   const { theme, toggleTheme } = useTheme();
@@ -10,72 +9,72 @@ const SecurityRisksPage = () => {
   const attacks = [
     {
       title: 'Brute Force Attack',
-      description: 'An attacker systematically tries all possible password combinations until the correct one is found.',
+      description: 'Systematic attempts to guess password combinations.',
       mitigation: [
-        'Account lockout after 5 failed attempts',
-        'Strong password requirements (min 12 characters)',
-        'Multi-factor authentication required',
-        'Rate limiting on login attempts',
+        'Account lockout (5 attempts)',
+        'Min 12 characters',
+        'MFA Required',
+        'Rate limiting',
       ],
       icon: Lock,
       severity: 'high',
     },
     {
       title: 'SQL Injection',
-      description: 'Malicious SQL code is inserted into input fields to manipulate database queries.',
+      description: 'Malicious code inserted into database queries.',
       mitigation: [
-        'Parameterized queries for all database operations',
-        'Input validation and sanitization',
-        'Principle of least privilege for database accounts',
-        'Web Application Firewall (WAF) monitoring',
+        'Parameterized queries',
+        'Input sanitization',
+        'Least privilege access',
+        'WAF monitoring',
       ],
       icon: AlertTriangle,
       severity: 'critical',
     },
     {
-      title: 'Man-in-the-Middle (MITM)',
-      description: 'An attacker intercepts communication between two parties to eavesdrop or modify data.',
+      title: 'MITM Attack',
+      description: 'Intercepting communication to eavesdrop or modify data.',
       mitigation: [
-        'TLS 1.3 encryption for all communications',
-        'Certificate pinning for mobile apps',
-        'HSTS (HTTP Strict Transport Security)',
-        'Encrypted key exchange using RSA',
+        'TLS 1.3 Encryption',
+        'Certificate pinning',
+        'HSTS Security',
+        'RSA Key exchange',
       ],
       icon: Eye,
       severity: 'high',
     },
     {
       title: 'Replay Attack',
-      description: 'An attacker captures valid authentication tokens and reuses them to gain unauthorized access.',
+      description: 'Capturing and reusing valid authentication tokens.',
       mitigation: [
-        'Time-limited session tokens (15 min expiry)',
-        'Nonce values in authentication requests',
-        'Token rotation after each use',
-        'Challenge-response authentication',
+        '15-min token expiry',
+        'Nonce values',
+        'Token rotation',
+        'Challenge-response',
       ],
       icon: RefreshCw,
       severity: 'medium',
     },
     {
       title: 'Session Hijacking',
-      description: 'An attacker steals or predicts session IDs to impersonate legitimate users.',
+      description: 'Stealing session IDs to impersonate users.',
       mitigation: [
-        'Secure, HttpOnly cookies',
-        'Session binding to IP address',
-        'Random, unpredictable session IDs',
-        'Automatic session timeout',
+        'HttpOnly cookies',
+        'IP address binding',
+        'Unpredictable IDs',
+        'Auto timeout',
       ],
       icon: Key,
       severity: 'high',
     },
     {
-      title: 'Cross-Site Scripting (XSS)',
-      description: 'Malicious scripts are injected into web pages viewed by other users.',
+      title: 'Cross-Site Scripting',
+      description: 'Injecting malicious scripts into web pages.',
       mitigation: [
-        'Content Security Policy (CSP) headers',
-        'Input sanitization and output encoding',
-        'React\'s built-in XSS protection',
-        'Regular security audits',
+        'CSP headers',
+        'Output encoding',
+        'React built-in protection',
+        'Security audits',
       ],
       icon: AlertTriangle,
       severity: 'high',
@@ -83,104 +82,96 @@ const SecurityRisksPage = () => {
   ];
 
   const getSeverityBadge = (severity: string) => {
-    switch (severity) {
-      case 'critical':
-        return <span className="px-2 py-0.5 rounded text-xs bg-destructive/10 text-destructive">Critical</span>;
-      case 'high':
-        return <span className="px-2 py-0.5 rounded text-xs bg-warning/10 text-warning">High</span>;
-      case 'medium':
-        return <span className="px-2 py-0.5 rounded text-xs bg-primary/10 text-primary">Medium</span>;
-      default:
-        return null;
-    }
+    const styles = {
+      critical: "bg-red-500/10 text-red-500 border-red-500/20",
+      high: "bg-orange-500/10 text-orange-500 border-orange-500/20",
+      medium: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    }[severity] || "";
+    return <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${styles}`}>{severity}</span>;
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="flex items-center gap-2">
-              <Shield className="h-8 w-8 text-primary" />
-              <span className="text-xl font-semibold text-foreground">SecureExamVault</span>
-            </Link>
-          </div>
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-md hover:bg-accent transition-colors"
-            aria-label="Toggle theme"
-          >
-            {theme === 'light' ? (
-              <Moon className="h-5 w-5 text-muted-foreground" />
-            ) : (
-              <Sun className="h-5 w-5 text-muted-foreground" />
-            )}
+      <header className="border-b bg-card/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 group">
+            <Shield className="h-6 w-6 text-primary group-hover:rotate-12 transition-transform" />
+            <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              SecureExamVault
+            </span>
+          </Link>
+          <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-muted hover:bg-accent transition-all">
+            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </button>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
-
-          <div className="mb-10">
-            <h1 className="text-3xl font-bold text-foreground mb-4">Security Risks & Mitigations</h1>
-            <p className="text-muted-foreground">
-              Understanding common security threats and how SecureExamVault protects against them.
-            </p>
+      <main className="container mx-auto px-6 py-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+          <div>
+            <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline mb-4">
+              <ArrowLeft className="h-4 w-4" /> Back to Home
+            </Link>
+            <h1 className="text-4xl font-extrabold tracking-tight">Security Infrastructure</h1>
+            <p className="text-muted-foreground mt-2 text-lg">Proactive threat mitigation and defense protocols.</p>
           </div>
 
-          {/* Attack Cards */}
-          <div className="space-y-6">
-            {attacks.map((attack, index) => (
-              <div key={index} className="bg-card border rounded-xl p-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-muted flex-shrink-0">
-                    <attack.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h2 className="text-lg font-semibold text-foreground">{attack.title}</h2>
-                      {getSeverityBadge(attack.severity)}
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-4">{attack.description}</p>
-                    <div>
-                      <h3 className="text-sm font-medium text-foreground mb-2">Mitigations in SecureExamVault:</h3>
-                      <ul className="space-y-1">
-                        {attack.mitigation.map((item, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                            <Shield className="h-4 w-4 text-success flex-shrink-0 mt-0.5" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {attacks.map((attack, index) => (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              key={index}
+              className="group bg-card border hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 rounded-2xl p-6 flex flex-col"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-3 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                  <attack.icon className="h-6 w-6" />
                 </div>
+                {getSeverityBadge(attack.severity)}
               </div>
-            ))}
-          </div>
 
-          {/* Summary */}
-          <div className="mt-10 p-6 rounded-xl bg-primary/5 border border-primary/20">
-            <div className="flex items-start gap-4">
-              <Shield className="h-8 w-8 text-primary flex-shrink-0" />
-              <div>
-                <h2 className="text-lg font-semibold text-foreground mb-2">Defense in Depth</h2>
-                <p className="text-sm text-muted-foreground">
-                  SecureExamVault employs a defense-in-depth strategy with multiple layers of security controls.
-                  No single security measure is relied upon; instead, overlapping defenses ensure that even if
-                  one layer is compromised, others remain to protect the system. This approach includes
-                  authentication, authorization, encryption, monitoring, and incident response capabilities.
-                </p>
+              <h2 className="text-xl font-bold mb-2">{attack.title}</h2>
+              <p className="text-sm text-muted-foreground mb-6 line-clamp-2">{attack.description}</p>
+
+              <div className="mt-auto space-y-3">
+                <div className="h-px bg-border w-full" />
+                <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Active Mitigations</h3>
+                <ul className="grid grid-cols-1 gap-2">
+                  {attack.mitigation.map((item, idx) => (
+                    <li key={idx} className="flex items-center gap-2 text-xs font-medium text-foreground/80">
+                      <Shield className="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          className="mt-12 p-8 rounded-3xl bg-gradient-to-br from-primary/10 via-transparent to-blue-500/10 border border-primary/20 relative overflow-hidden"
+        >
+          <div className="relative z-10 flex flex-col md:flex-row items-center gap-8 text-center md:text-left">
+            <div className="p-4 rounded-2xl bg-background shadow-xl border border-primary/20">
+              <Shield className="h-12 w-12 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Defense-in-Depth Architecture</h2>
+              <p className="text-muted-foreground leading-relaxed max-w-3xl">
+                Our ecosystem doesn't rely on a single firewall. We've engineered overlapping security layers including
+                Identity Management, End-to-End Encryption, and Continuous AI Monitoring to ensure that if one
+                control point is targeted, your academic data remains mathematically unreachable.
+              </p>
             </div>
           </div>
-        </div>
+        </motion.div>
       </main>
     </div>
   );

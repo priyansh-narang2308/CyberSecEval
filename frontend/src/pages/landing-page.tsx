@@ -1,7 +1,9 @@
-import { Shield, Lock, Key, FileCheck, KeyRound, UserCheck, Moon, Sun } from 'lucide-react';
+import { Shield, Lock, Key, FileCheck, KeyRound, UserCheck, ArrowRight, Sun, Moon } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../contexts/theme-context';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
 
 const securityFeatures = [
   {
@@ -38,123 +40,314 @@ const securityFeatures = [
 
 const LandingPage = () => {
   const { theme, toggleTheme } = useTheme();
+  const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="h-8 w-8 text-primary" />
-            <span className="text-xl font-semibold text-foreground">SecureExamVault</span>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 -left-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-40 left-1/3 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:50px_50px]" />
+      </div>
+
+      <header className="relative border-b bg-background/80 backdrop-blur-xl">
+        <div className="container mx-auto px-6 py-5 flex items-center justify-between">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-3 group cursor-pointer"
+          >
+            <div className="relative">
+              <div className="absolute inset-0 bg-primary/20 rounded-xl blur-md group-hover:blur-lg transition-all duration-300" />
+              <Shield className="h-9 w-9 text-primary relative z-10 group-hover:scale-110 transition-transform duration-300" />
+            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              SecureExamVault
+            </span>
+          </motion.div>
+
           <div className="flex items-center gap-4">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-md hover:bg-accent transition-colors"
+              className="relative p-2.5 rounded-xl bg-gradient-to-br from-card to-card/50 hover:from-accent hover:to-accent/50 transition-all duration-300 group border border-border/50 shadow-sm overflow-hidden"
               aria-label="Toggle theme"
             >
-              {theme === 'light' ? (
-                <Moon className="h-5 w-5 text-muted-foreground" />
-              ) : (
-                <Sun className="h-5 w-5 text-muted-foreground" />
-              )}
+
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+              <div className="relative z-10 flex items-center justify-center">
+                {theme === 'dark' ? (
+                  <Moon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-all duration-300 rotate-0 scale-100" />
+                ) : (
+                  <Sun className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-all duration-300 rotate-0 scale-100" />
+                )}
+              </div>
             </button>
-            <Link to="/login">
-              <Button variant="ghost">Login</Button>
-            </Link>
-            <Link to="/register">
-              <Button variant="security">Register</Button>
-            </Link>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-3"
+            >
+              <Link to="/login">
+                <Button variant="ghost" className="relative overflow-hidden group">
+                  <span className="relative z-10">Login</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button variant="security" className="relative overflow-hidden group">
+                  <span className="relative z-10">Get Started</span>
+                  <ArrowRight className="ml-2 h-4 w-4 relative z-10 transition-transform group-hover:translate-x-1" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                </Button>
+              </Link>
+            </motion.div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20 lg:py-28">
-        <div className="container mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-6">
-            <Lock className="h-4 w-4" />
-            <span className="text-sm font-medium">Enterprise-Grade Security</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 max-w-4xl mx-auto leading-tight">
-            SecureExamVault
-          </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-4 max-w-2xl mx-auto">
+      <section className="relative py-24 lg:py-32">
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 mb-8 backdrop-blur-sm"
+          >
+            <Lock className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+              Enterprise-Grade Security
+            </span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight"
+          >
+            <span className="bg-gradient-to-b from-foreground via-foreground to-foreground/90 bg-clip-text text-transparent">
+              SecureExam {" "}
+            </span>
+            <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+              Vault
+            </span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-2xl md:text-3xl text-muted-foreground mb-6 max-w-3xl mx-auto leading-relaxed font-light"
+          >
             End-to-End Secure Online Examination System
-          </p>
-          <p className="text-base text-muted-foreground mb-10 max-w-xl mx-auto">
-            Designed with industry-grade authentication, encryption, and access control for academic institutions.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/login">
-              <Button variant="security" size="xl">
-                <Lock className="h-5 w-5" />
-                Login to Portal
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-lg text-muted-foreground mb-12 max-w-xl mx-auto leading-relaxed"
+          >
+            Designed with military-grade authentication, encryption, and access control for academic institutions worldwide.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-5 justify-center items-center"
+          >
+            <Link to="/login" className="group">
+              <Button size="xl" className="relative overflow-hidden px-8 h-14 text-lg group">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600" />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <Lock className="h-5 w-5 mr-3 relative z-10" />
+                <span className="relative z-10 font-semibold">Access Portal</span>
+                <ArrowRight className="ml-2 h-5 w-5 relative z-10 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
-            <Link to="/register">
-              <Button variant="security-outline" size="xl">
-                Create Account
-              </Button>
-            </Link>
-          </div>
+
+
+          </motion.div>
         </div>
       </section>
 
-      {/* Security Features */}
-      <section className="py-16 bg-muted/50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Security Architecture</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Built with comprehensive security controls to protect examination integrity and student data.
+      <section className="relative py-24">
+        <div className="container mx-auto px-6 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
+                Security
+              </span>
+              <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                Architecture
+              </span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Comprehensive security controls protecting examination integrity and sensitive student data
             </p>
-          </div>
+          </motion.div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {securityFeatures.map((feature, index) => (
-              <div key={index} className="security-card">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-primary/10">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-2">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                onMouseEnter={() => setHoveredFeature(index)}
+                onMouseLeave={() => setHoveredFeature(null)}
+                className="group relative"
+              >
+                <div className="relative p-8 rounded-2xl bg-gradient-to-br from-card/80 to-card/40 border border-border/50 shadow-xl backdrop-blur-sm transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:border-primary/30 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                  <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent transition-all duration-500 ${hoveredFeature === index ? 'opacity-100' : 'opacity-0'}`} />
+
+                  <div className="relative z-10">
+                    <div className="flex items-start gap-6">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-xl blur-md group-hover:blur-lg transition-all duration-500" />
+                        <div className="relative p-4 rounded-xl bg-gradient-to-br from-card to-card/50 border border-border/50 group-hover:border-primary/30 transition-all duration-500">
+                          <feature.icon className="h-7 w-7 text-primary group-hover:scale-110 transition-transform duration-500" />
+                        </div>
+                      </div>
+
+                      <div className="flex-1 pt-2">
+                        <h3 className="text-xl font-semibold text-foreground mb-3 group-hover:text-primary transition-colors duration-300">
+                          {feature.title}
+                        </h3>
+                        <p className="text-muted-foreground leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Trust Indicators */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="bg-card border rounded-xl p-8 md:p-12">
-            <div className="grid md:grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="text-4xl font-bold text-primary mb-2">AES-256</div>
-                <p className="text-muted-foreground">Data Encryption</p>
+      <section className="relative py-24">
+        <div className="container mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-3xl overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-blue-500/5" />
+            <div className="relative bg-gradient-to-br from-card/90 to-card/50 border border-border/50 backdrop-blur-xl p-12 md:p-16 rounded-3xl shadow-2xl">
+              <div className="grid md:grid-cols-3 gap-12 text-center">
+                {[
+                  { value: 'AES-256', label: 'Military-Grade Encryption', desc: 'Data at rest & in transit' },
+                  { value: 'RBAC', label: 'Granular Access Control', desc: 'Role-based permissions' },
+                  { value: 'Zero Trust', label: 'Security Model', desc: 'Always verify, never trust' }
+                ].map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.2 }}
+                    className="group"
+                  >
+                    <div className="text-6xl font-bold mb-4">
+                      <span className="bg-gradient-to-r from-primary via-blue-500 to-blue-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300 inline-block">
+                        {item.value}
+                      </span>
+                    </div>
+                    <h4 className="text-xl font-semibold text-foreground mb-2">{item.label}</h4>
+                    <p className="text-muted-foreground">{item.desc}</p>
+                  </motion.div>
+                ))}
               </div>
-              <div>
-                <div className="text-4xl font-bold text-primary mb-2">RBAC</div>
-                <p className="text-muted-foreground">Access Control</p>
-              </div>
-              <div>
-                <div className="text-4xl font-bold text-primary mb-2">MFA</div>
-                <p className="text-muted-foreground">Multi-Factor Auth</p>
-              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="mt-16 pt-12 border-t border-border/50 text-center"
+              >
+                <p className="text-2xl md:text-3xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-light">
+                  "Trusted by leading academic institutions worldwide for secure, reliable examination management"
+                </p>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>© 2026 SecureExamVault. Built for academic institutions with security-first principles.</p>
+      <section className="relative py-24">
+        <div className="container mx-auto px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-3xl overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-blue-500/20" />
+            <div className="relative bg-gradient-to-br from-card/90 to-card/50 border border-border/50 backdrop-blur-xl p-12 md:p-16 rounded-3xl text-center shadow-2xl">
+              <Shield className="h-20 w-20 text-primary mx-auto mb-8" />
+              <h3 className="text-4xl md:text-5xl font-bold mb-6">
+                <span className="bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                  Ready to Secure Your {" "} {" "}
+                </span>
+                <span className="bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                  Examinations?
+                </span>
+              </h3>
+              <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+                Join thousands of institutions protecting their academic integrity with our platform
+              </p>
+              <div className="flex flex-col sm:flex-row gap-5 justify-center">
+                <Link to="/register">
+                  <Button size="xl" className="px-12 h-16 text-lg relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <span className="relative z-10 font-bold text-lg">Start Free Trial</span>
+                    <ArrowRight className="ml-3 h-5 w-5 relative z-10 transition-transform group-hover:translate-x-2" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      <footer className="relative border-t border-border/50 py-12 backdrop-blur-sm">
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+            <div className="flex items-center gap-3">
+              <Shield className="h-8 w-8 text-primary" />
+              <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                SecureExamVault
+              </span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+              <Link to="/security" className="hover:text-foreground transition-colors">Security</Link>
+              <Link to="/compliance" className="hover:text-foreground transition-colors">Compliance</Link>
+              <Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link>
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            © 2026 SecureExamVault. Built for academic institutions with security-first principles.
+            All rights reserved.
+          </p>
         </div>
       </footer>
     </div>

@@ -116,7 +116,7 @@ const HashingPage = () => {
                 </div>
               )}
               <p className="text-xs text-muted-foreground">
-                Note: This is a simplified demonstration. In production, bcrypt or Argon2 would be used.
+                Note: This is a simplified demonstration. In production, bcrypt would be used.
               </p>
             </div>
           )}
