@@ -6,13 +6,18 @@ import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import type { UserRole } from '../contexts/auth-context';
+import { useAuth } from '../contexts/auth-context';
+import { useToast } from '../components/ui/use-toast';
 
 type Step = 1 | 2 | 3;
 
 const RegisterPage = () => {
     const [step, setStep] = useState<Step>(1);
+    const [isLoading, setIsLoading] = useState(false);
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
+    const { register } = useAuth();
+    const { toast } = useToast();
 
     // Step 1: Identity
     const [fullName, setFullName] = useState('');
@@ -44,8 +49,31 @@ const RegisterPage = () => {
 
     const strength = getPasswordStrength(password);
 
-    const handleComplete = () => {
-        navigate('/login');
+    const handleComplete = async () => {
+        setIsLoading(true);
+        const result = await register({
+            username,
+            name: fullName,
+            email,
+            universityId,
+            role,
+            password
+        });
+        setIsLoading(false);
+
+        if (result.success) {
+            toast({
+                title: 'Registration Successful',
+                description: result.message,
+            });
+            navigate('/login');
+        } else {
+            toast({
+                title: 'Registration Failed',
+                description: result.message,
+                variant: 'destructive',
+            });
+        }
     };
 
     const renderStep1 = () => (
@@ -249,8 +277,8 @@ const RegisterPage = () => {
                     <ArrowLeft className="h-4 w-4" />
                     Back
                 </Button>
-                <Button variant="security" className="flex-1" onClick={handleComplete}>
-                    Complete Registration
+                <Button variant="security" className="flex-1" onClick={handleComplete} disabled={isLoading}>
+                    {isLoading ? 'Registering...' : 'Complete Registration'}
                     <Check className="h-4 w-4" />
                 </Button>
             </div>

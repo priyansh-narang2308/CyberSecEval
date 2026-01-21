@@ -1,16 +1,30 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, KeyRound, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../contexts/theme-context';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '../components/ui/input-otp';
 import { Button } from '../components/ui/button';
+import { useAuth } from '../contexts/auth-context';
+import { useToast } from '../components/ui/use-toast';
 
 const MFAVerifyPage = () => {
     const [otp, setOtp] = useState('');
-    const [timeLeft, setTimeLeft] = useState(120);
+    const [timeLeft, setTimeLeft] = useState(300); // NIST standard for OTP is often longer than 2 mins
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const { theme, toggleTheme } = useTheme();
+    const { verifyMfa } = useAuth();
+    const { toast } = useToast();
+
+    // The identifier (email/username) passed from the login page
+    const identifier = location.state?.identifier;
+
+    useEffect(() => {
+        if (!identifier) {
+            navigate('/login');
+        }
+    }, [identifier, navigate]);
 
     useEffect(() => {
         if (timeLeft > 0) {
@@ -28,12 +42,23 @@ const MFAVerifyPage = () => {
     const handleVerify = async () => {
         if (otp.length !== 6) return;
         setIsLoading(true);
-        // Simulate verification - in production would verify against backend
-        setTimeout(() => {
-            setIsLoading(false);
-            // For demo, navigate to student dashboard
-            navigate('/dashboard/student');
-        }, 1000);
+
+        const result = await verifyMfa(identifier, otp);
+        setIsLoading(false);
+
+        if (result.success) {
+            toast({
+                title: 'Verification Successful',
+                description: 'Welcome to SecureExamVault',
+            });
+            navigate('/dashboard/student'); // Default to student for now, could redirect based on role
+        } else {
+            toast({
+                title: 'Verification Failed',
+                description: result.message,
+                variant: 'destructive',
+            });
+        }
     };
 
     const handleResend = () => {

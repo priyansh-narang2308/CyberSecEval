@@ -7,6 +7,9 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 
 
+import { useAuth } from '../contexts/auth-context';
+import { useToast } from '../components/ui/use-toast';
+
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,15 +17,25 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { login } = useAuth();
+  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate authentication
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/mfa-verify');
-    }, 1000);
+
+    const result = await login(email, password);
+    setIsLoading(false);
+
+    if (result.success && result.requiresMfa) {
+      navigate('/mfa-verify', { state: { identifier: email } });
+    } else if (!result.success) {
+      toast({
+        title: 'Login Failed',
+        description: result.message,
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
