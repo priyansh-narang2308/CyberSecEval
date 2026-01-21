@@ -92,7 +92,7 @@ const RegisterPage = () => {
                 <Label htmlFor="universityId">University ID</Label>
                 <Input
                     id="universityId"
-                    placeholder="e.g., STU2024001"
+                    placeholder="e.g., CB.SC.U4CSE23***"
                     value={universityId}
                     onChange={(e) => setUniversityId(e.target.value)}
                 />
