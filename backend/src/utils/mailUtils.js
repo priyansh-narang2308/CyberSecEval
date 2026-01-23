@@ -1,29 +1,24 @@
 import nodemailer from 'nodemailer';
 
-/**
- * Mail Utility for SecureExamVault
- * 
- * In a real production environment, you would use a service like 
- * SendGrid, AWS SES, or a dedicated SMTP server.
- */
-
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: process.env.SMTP_PORT || 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-    }
-});
-
 export const sendOTP = async (email, otp) => {
     try {
+        const port = process.env.SMTP_PORT || 587;
+
         // If testing/demo and no SMTP credentials, we skip sending but still log
         if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
             console.log(`[MAIL-STUB] To: ${email}, OTP: ${otp}`);
             return true;
         }
+
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST || 'smtp.gmail.com',
+            port: port,
+            secure: port == 465,
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            }
+        });
 
         const info = await transporter.sendMail({
             from: `"SecureExamVault" <${process.env.SMTP_USER}>`,
