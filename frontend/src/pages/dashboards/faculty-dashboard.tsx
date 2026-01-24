@@ -44,10 +44,31 @@ const FacultyDashboard = () => {
     { icon: Users, label: 'Students', value: '156', color: 'text-primary' },
   ];
 
+  const handleDecryptSubmission = async (submissionId: string) => {
+    // In a real app, this ID would come from the database.
+    // Here we are simulating the decryption flow.
+    // To make this work with the backend demo, we'd need a real submission ID from a previous CREATE call.
+    // For the UI demo, we will check if the user HAS permission to decrypt (which they do).
+
+    // We'll try to decrypt a "demo" ID just to trigger the API and show the flow works
+    // The backend will return 404/500 if the ID isn't real, but the Access Check happens first.
+    const res = await apiCall(`/hybrid/decrypt/${submissionId}`);
+
+    if (res.ok) {
+      toast.success('Submission Decrypted Successfully! (See console/network)');
+      console.log('Decrypted Data:', res.data);
+    } else if (res.status === 403) {
+      toast.error('Decryption Failed: Access Denied');
+    } else {
+      // Since we are clicking dummy items, a 404/500 is expected, but verifies the route is hit.
+      toast.info('Decryption Request Sent (Mock ID used)');
+    }
+  };
+
   const pendingSubmissions = [
-    { id: 1, exam: 'Cryptography Midterm', student: 'Alice Johnson', submittedAt: '2 hours ago', encrypted: true },
-    { id: 2, exam: 'Network Security Quiz', student: 'Bob Smith', submittedAt: '4 hours ago', encrypted: true },
-    { id: 3, exam: 'Cryptography Midterm', student: 'Carol White', submittedAt: '5 hours ago', encrypted: true },
+    { id: '1', exam: 'Cryptography Midterm', student: 'Alice Johnson', submittedAt: '2 hours ago', encrypted: true },
+    { id: '2', exam: 'Network Security Quiz', student: 'Bob Smith', submittedAt: '4 hours ago', encrypted: true },
+    { id: '3', exam: 'Cryptography Midterm', student: 'Carol White', submittedAt: '5 hours ago', encrypted: true },
   ];
 
   const unsignedResults = [
@@ -110,12 +131,22 @@ const FacultyDashboard = () => {
                       <p className="text-sm text-muted-foreground">{submission.student}</p>
                       <p className="text-xs text-muted-foreground mt-1">{submission.submittedAt}</p>
                     </div>
-                    {submission.encrypted && (
-                      <span className="encrypted-badge text-xs">
-                        <Lock className="h-3 w-3" />
-                        Encrypted
-                      </span>
-                    )}
+                    <div>
+                      {submission.encrypted && (
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="encrypted-badge text-xs">
+                            <Lock className="h-3 w-3" />
+                            Encrypted
+                          </span>
+                          <button
+                            onClick={() => handleDecryptSubmission(submission.id)}
+                            className="text-xs px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                          >
+                            Decrypt & View
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}

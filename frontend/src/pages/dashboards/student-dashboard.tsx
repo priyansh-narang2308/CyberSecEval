@@ -61,6 +61,35 @@ const StudentDashboard = () => {
     { id: 2, title: 'Access Control Systems', score: 72, maxScore: 100, date: 'Feb 28, 2024', signed: true },
   ];
 
+
+  const handleSecureSubmit = async (examId: string) => {
+    // 1. Fetch Public Key
+    const pkRes = await fetch('http://localhost:5001/api/crypto/public-key');
+    const { publicKey } = await pkRes.json();
+    console.log('Fetched Public Key:', publicKey ? 'Success' : 'Failed');
+
+    // 2. Simulate Secure Submission
+    const submissionData = {
+      examId: examId,
+      answers: {
+        q1: 'Encrypted Answer A',
+        q2: 'Encrypted Answer B',
+        timestamp: new Date().toISOString()
+      }
+    };
+
+    const res = await apiCall('/hybrid/submit', {
+      method: 'POST',
+      body: JSON.stringify(submissionData)
+    });
+
+    if (res.ok) {
+      toast.success('Exam submitted securely via Hybrid Encryption!');
+    } else {
+      toast.error('Submission failed');
+    }
+  };
+
   return (
     <DashboardLayout role="student" userName={user?.name || 'Student'}>
       <div className="max-w-6xl mx-auto">
@@ -118,9 +147,12 @@ const StudentDashboard = () => {
                       </p>
                       <p className="text-xs text-muted-foreground mt-0.5">Duration: {exam.duration}</p>
                     </div>
-                    <span className="text-xs px-2 py-1 rounded-full bg-warning/10 text-warning">
-                      Scheduled
-                    </span>
+                    <button
+                      onClick={() => handleSecureSubmit(`EXAM-00${exam.id}`)}
+                      className="text-xs px-3 py-1.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                      Start & Secure Submit
+                    </button>
                   </div>
                 </div>
               ))}
