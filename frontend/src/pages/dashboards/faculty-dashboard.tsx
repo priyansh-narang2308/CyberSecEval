@@ -65,6 +65,28 @@ const FacultyDashboard = () => {
     }
   };
 
+  const handleSignResult = async (resultId: number) => {
+    // Simulate signing a specific result
+    // In a real app we would pick the student/exam from the ID.
+    const dummyResult = {
+      studentName: 'Student #' + resultId,
+      examTitle: 'Final Exam',
+      score: Math.floor(Math.random() * 20) + 80 // Random score 80-100
+    };
+
+    const res = await apiCall('/signature/sign-result', {
+      method: 'POST',
+      body: JSON.stringify(dummyResult)
+    });
+
+    if (res.ok) {
+      toast.success(`Result #${resultId} signed securely! Hash generated.`);
+      console.log('Signature Proof:', res.data);
+    } else {
+      toast.error('Signing Failed');
+    }
+  };
+
   const pendingSubmissions = [
     { id: '1', exam: 'Cryptography Midterm', student: 'Alice Johnson', submittedAt: '2 hours ago', encrypted: true },
     { id: '2', exam: 'Network Security Quiz', student: 'Bob Smith', submittedAt: '4 hours ago', encrypted: true },
@@ -173,7 +195,11 @@ const FacultyDashboard = () => {
                       <p className="text-xs text-muted-foreground mt-1">Deadline: {result.deadline}</p>
                     </div>
                     <Link
-                      to="/dashboard/faculty/sign-results"
+                      to="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleSignResult(result.id);
+                      }}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm hover:bg-primary/90"
                     >
                       <PenTool className="h-4 w-4" />
