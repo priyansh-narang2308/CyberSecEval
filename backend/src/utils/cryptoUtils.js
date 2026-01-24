@@ -116,8 +116,59 @@ export const decryptData = (encryptedData, aesKey, ivHex) => {
     return decrypted;
 };
 
-// Helper to handle Buffer/Hex conversions safely
 const bufferFromHex = (hexOrBuffer) => {
     if (Buffer.isBuffer(hexOrBuffer)) return hexOrBuffer;
     return Buffer.from(hexOrBuffer, 'hex');
 };
+
+/**
+ * 5. DIGITAL SIGNATURES (HASHING + SIGNING)
+ * 
+ * SECURITY JUSTIFICATION:
+ * 1. Hashing (SHA-256): Compresses data into a fixed-size string.
+ *    - Ensures Integrity: If even one bit of data changes, the hash changes completely.
+ *    - One-Way: You cannot reconstruct the data from the hash.
+ * 
+ * 2. Digital Signature (RSA):
+ *    - Uses the Private Key to encrypt the hash.
+ *    - Authenticity: Only the holder of the Private Key (Faculty) could have created it.
+ *    - Non-Repudiation: The signer cannot deny signing it later.
+ *    - Integrity: Verification checks if the decrypted hash matches the re-computed hash of the data.
+ * 
+ * Difference vs Encryption: 
+ * - Encryption hides data (Confidentiality).
+ * - Signatures prove who sent it and that it hasn't changed (Authenticity + Integrity).
+ */
+
+/**
+ * Signs data using SHA-256 Hashing + RSA Private Key
+ */
+export const signData = (data) => {
+    const privateKey = getPrivateKey();
+    const sign = crypto.createSign('SHA256');
+    
+    // Hash the data inside the update method
+    sign.update(JSON.stringify(data));
+    
+    // Create signature using Private Key
+    const signature = sign.sign(privateKey, 'hex');
+    
+    // We also return the hash separately for demonstration/storage
+    const hash = crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex');
+
+    return { signature, hash };
+};
+
+/**
+ * Verifies a signature using SHA-256 Hashing + RSA Public Key
+ */
+export const verifySignature = (data, signature) => {
+    const publicKey = getPublicKey();
+    const verify = crypto.createVerify('SHA256');
+    
+    verify.update(JSON.stringify(data));
+    
+    // Verify using Public Key
+    return verify.verify(publicKey, signature, 'hex');
+};
+
