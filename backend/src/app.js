@@ -5,6 +5,8 @@ import examRoutes from './routes/examRoutes.js';
 import submissionRoutes from './routes/submissionRoutes.js';
 import resultRoutes from './routes/resultRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import cryptoRoutes from './routes/cryptoRoutes.js';
+import hybridRoutes from './routes/hybridRoutes.js';
 import errorHandler from './middleware/errorMiddleware.js';
 
 const app = express();
@@ -23,6 +25,8 @@ app.use('/api/exams', examRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/crypto', cryptoRoutes);
+app.use('/api/hybrid', hybridRoutes);
 
 app.use(errorHandler);
 
