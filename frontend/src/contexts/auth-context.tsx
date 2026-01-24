@@ -20,6 +20,7 @@ interface AuthContextType {
   verifyMfa: (identifier: string, otp: string) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   setUser: (user: User | null) => void;
+  apiCall: (endpoint: string, options?: RequestInit) => Promise<{ ok: boolean; status: number; data: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -104,6 +105,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem('token');
   };
 
+  const apiCall = async (endpoint: string, options: RequestInit = {}) => {
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...options.headers,
+    };
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      ...options,
+      headers,
+    });
+
+    const data = await response.json();
+    return { ok: response.ok, status: response.status, data };
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -114,6 +132,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         verifyMfa,
         logout,
         setUser,
+        apiCall,
       }}
     >
       {children}

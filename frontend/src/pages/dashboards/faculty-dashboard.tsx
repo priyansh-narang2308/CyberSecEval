@@ -1,8 +1,42 @@
 import DashboardLayout from '../../components/dashboard-layout';
-import { FileText, ClipboardList, FileCheck, Lock, Users, PenTool } from 'lucide-react';
+import { FileText, ClipboardList, FileCheck, Lock, Users, PenTool, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/auth-context';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const FacultyDashboard = () => {
+  const { user, apiCall } = useAuth();
+  const [accessStatus, setAccessStatus] = useState<{
+    canEvaluate: boolean;
+    canSign: boolean;
+  }>({ canEvaluate: false, canSign: false });
+
+  useEffect(() => {
+    const checkAccess = async () => {
+      // 1. Check Evaluate Access (Should allow)
+      const evalRes = await apiCall('/submissions/evaluate', { method: 'POST' });
+
+      // 2. Check Sign Access (Should allow)
+      const signRes = await apiCall('/results/sign', { method: 'POST' });
+
+      setAccessStatus({
+        canEvaluate: evalRes.ok,
+        canSign: signRes.ok
+      });
+
+      if (!evalRes.ok || !signRes.ok) {
+        toast.error('Access Denied: Insufficient permissions');
+      } else {
+        toast.success('Access Verified: Faculty permissions active');
+      }
+    };
+
+    if (user) {
+      checkAccess();
+    }
+  }, [user]);
+
   const stats = [
     { icon: FileText, label: 'Active Exams', value: '4', color: 'text-primary' },
     { icon: ClipboardList, label: 'Pending Reviews', value: '12', color: 'text-warning' },
@@ -22,11 +56,23 @@ const FacultyDashboard = () => {
   ];
 
   return (
-    <DashboardLayout role="faculty" userName="Dr. Priyansh Narang">
+    <DashboardLayout role="faculty" userName={user?.name || 'Faculty'}>
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">Faculty Dashboard</h1>
-          <p className="text-muted-foreground">Manage examinations, evaluate submissions, and sign results securely.</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground mb-2">Faculty Dashboard</h1>
+              <p className="text-muted-foreground">Manage examinations, evaluate submissions, and sign results securely.</p>
+            </div>
+
+            {/* ACM Verification Badge */}
+            <div className={`px-4 py-2 rounded-lg border text-sm font-medium ${accessStatus.canEvaluate ? 'bg-success/10 border-success/20 text-success' : 'bg-destructive/10 border-destructive/20 text-destructive'}`}>
+              <div className="flex items-center gap-2">
+                {accessStatus.canEvaluate ? <CheckCircle className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+                <span>Evaluation Access: {accessStatus.canEvaluate ? 'GRANTED' : 'DENIED'}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}

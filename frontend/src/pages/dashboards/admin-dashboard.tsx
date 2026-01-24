@@ -2,8 +2,42 @@
 import DashboardLayout from '../../components/dashboard-layout'
 import { Users, Key, FileText, Shield, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/auth-context';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const AdminDashboard = () => {
+  const { user, apiCall } = useAuth();
+  const [accessStatus, setAccessStatus] = useState<{
+    canManageUsers: boolean;
+    canWriteExams: boolean;
+  }>({ canManageUsers: false, canWriteExams: false });
+
+  useEffect(() => {
+    const checkAccess = async () => {
+      // 1. Check User Management Access (Should allow)
+      const usersRes = await apiCall('/admin/users');
+
+      // 2. Check Exam Write Access (Should allow)
+      const examsRes = await apiCall('/exams', { method: 'POST' });
+
+      setAccessStatus({
+        canManageUsers: usersRes.ok,
+        canWriteExams: examsRes.ok
+      });
+
+      if (!usersRes.ok || !examsRes.ok) {
+        toast.error('Access Denied: Insufficient permissions');
+      } else {
+        toast.success('Access Verified: Admin privileges active');
+      }
+    };
+
+    if (user) {
+      checkAccess();
+    }
+  }, [user]);
+
   const stats = [
     { icon: Users, label: 'Total Users', value: '892', color: 'text-primary' },
     { icon: Key, label: 'Active Sessions', value: '47', color: 'text-success' },
@@ -25,11 +59,23 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <DashboardLayout role="admin" userName="Admin">
+    <DashboardLayout role="admin" userName={user?.name || 'Admin'}>
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">Administrator Dashboard</h1>
-          <p className="text-muted-foreground">System overview, user management, and security monitoring.</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground mb-2">Administrator Dashboard</h1>
+              <p className="text-muted-foreground">System overview, user management, and security monitoring.</p>
+            </div>
+
+            {/* ACM Verification Badge */}
+            <div className={`px-4 py-2 rounded-lg border text-sm font-medium ${accessStatus.canManageUsers ? 'bg-success/10 border-success/20 text-success' : 'bg-destructive/10 border-destructive/20 text-destructive'}`}>
+              <div className="flex items-center gap-2">
+                {accessStatus.canManageUsers ? <CheckCircle className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+                <span>Management Access: {accessStatus.canManageUsers ? 'GRANTED' : 'DENIED'}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}

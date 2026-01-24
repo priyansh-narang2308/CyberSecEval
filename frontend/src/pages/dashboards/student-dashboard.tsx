@@ -1,8 +1,49 @@
 import DashboardLayout from '../../components/dashboard-layout';
-import { FileText, ClipboardList, BarChart3, Lock, Shield, Clock } from 'lucide-react';
+import { FileText, ClipboardList, BarChart3, Lock, Shield, Clock, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/auth-context';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 const StudentDashboard = () => {
+  const { user, apiCall } = useAuth();
+  const [accessStatus, setAccessStatus] = useState<{
+    canReadExams: boolean;
+    canWriteExams: boolean;
+  }>({ canReadExams: false, canWriteExams: false });
+
+  useEffect(() => {
+    const checkAccess = async () => {
+      // 1. Check Read Access (Should allow)
+      const readRes = await apiCall('/exams');
+
+      // 2. Check Write Access (Should deny for student)
+      const writeRes = await apiCall('/exams', { method: 'POST' });
+
+      setAccessStatus({
+        canReadExams: readRes.ok,
+        canWriteExams: writeRes.ok
+      });
+
+      if (!readRes.ok) {
+        toast.error('Access Denied: Cannot read exams');
+      } else {
+        toast.success('Access Verified: Student can read exams');
+      }
+
+      if (!writeRes.ok) {
+        // Expected for students
+        console.log('Write access correctly denied for student');
+      } else {
+        toast.error('Security Alert: Student has write access!');
+      }
+    };
+
+    if (user) {
+      checkAccess();
+    }
+  }, [user]); // Removed apiCall from dependency array to avoid infinite loop if reference changes
+
   const stats = [
     { icon: FileText, label: 'Available Exams', value: '3', color: 'text-primary' },
     { icon: ClipboardList, label: 'Completed Exams', value: '5', color: 'text-success' },
@@ -21,11 +62,23 @@ const StudentDashboard = () => {
   ];
 
   return (
-    <DashboardLayout role="student" userName="John Doe">
+    <DashboardLayout role="student" userName={user?.name || 'Student'}>
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">Student Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, John. Your examination portal is secure.</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground mb-2">Student Dashboard</h1>
+              <p className="text-muted-foreground">Welcome back, {user?.name}. Your examination portal is secure.</p>
+            </div>
+
+            {/* ACM Verification Badge */}
+            <div className={`px-4 py-2 rounded-lg border text-sm font-medium ${accessStatus.canReadExams ? 'bg-success/10 border-success/20 text-success' : 'bg-destructive/10 border-destructive/20 text-destructive'}`}>
+              <div className="flex items-center gap-2">
+                {accessStatus.canReadExams ? <CheckCircle className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+                <span>Read Access: {accessStatus.canReadExams ? 'GRANTED' : 'DENIED'}</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}
