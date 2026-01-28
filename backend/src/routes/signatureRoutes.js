@@ -1,6 +1,6 @@
 import express from 'express';
 import { protect, authorize } from '../middleware/authMiddleware.js';
-import { RESOURCE_ACTIONS, RESOURCES, ACTIONS, ROLES } from '../config/accessControlMatrix.js';
+import { RESOURCES, ACTIONS, ROLES } from '../config/accessControlMatrix.js';
 import SignedResult from '../models/SignedResult.js';
 import { signData, verifySignature } from '../utils/cryptoUtils.js';
 

@@ -6,18 +6,20 @@ import { sendOTP } from '../utils/mailUtils.js';
 // @route   POST /api/auth/register
 export const registerUser = async (req, res) => {
     try {
-        const { username, email, role, password, name, universityId } = req.body;
+        const { username, email, role, password, name, universityId, mfaEnabled } = req.body;
 
         if (!username || !email || !password || !name || !universityId) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        const userExists = await User.findOne({ 
-            $or: [{ email }, { username }, { universityId }] 
-        });
-        if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
-        }
+        const emailExists = await User.findOne({ email });
+        if (emailExists) return res.status(400).json({ message: 'Email already registered' });
+
+        const usernameExists = await User.findOne({ username });
+        if (usernameExists) return res.status(400).json({ message: 'Username already taken' });
+
+        const idExists = await User.findOne({ universityId });
+        if (idExists) return res.status(400).json({ message: 'University ID already registered' });
 
         const passwordHash = await hashContent(password);
 
@@ -27,7 +29,8 @@ export const registerUser = async (req, res) => {
             email,
             universityId,
             role: role || 'student',
-            passwordHash
+            passwordHash,
+            mfaEnabled: mfaEnabled !== undefined ? mfaEnabled : true // Default to true if not specified, or respect input
         });
 
         res.status(201).json({
@@ -58,24 +61,48 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        const otp = generateOTP();
-        const otpHash = await hashContent(otp);
-        const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); 
+        // Check if MFA is enabled
+        if (user.mfaEnabled) {
+            const otp = generateOTP();
+            const otpHash = await hashContent(otp);
+            const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); 
 
-        user.mfaOTP = otpHash;
-        user.mfaExpiry = otpExpiry;
-        await user.save();
+            user.mfaOTP = otpHash;
+            user.mfaExpiry = otpExpiry;
+            await user.save();
 
-        // Send OTP via email
-        await sendOTP(user.email, otp);
+            // Send OTP via email
+            await sendOTP(user.email, otp);
+
+            return res.status(200).json({
+                message: 'MFA required',
+                step: 'mfa-pending',
+                identifier: identifier
+            });
+        }
+
+        // If MFA is disabled, return token immediately
+        const token = generateToken({
+            userId: user._id,
+            role: user.role
+        });
 
         res.status(200).json({
-            message: 'MFA required',
-            step: 'mfa-pending',
-            identifier: identifier
+            message: 'Login successful',
+            token,
+            user: {
+                id: user._id,
+                username: user.username,
+                name: user.name,
+                email: user.email,
+                universityId: user.universityId,
+                role: user.role,
+                mfaEnabled: user.mfaEnabled
+            }
         });
 
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ message: error.message });
     }
 };
