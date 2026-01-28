@@ -1,9 +1,16 @@
-import { Shield, Lock, Key, FileCheck, KeyRound, UserCheck, ArrowRight, Sun, Moon } from 'lucide-react';
+import { Shield, Lock, Key, FileCheck, KeyRound, UserCheck, ArrowRight, Sun, Moon, Menu } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../contexts/theme-context';
+import { useAuth } from '../contexts/auth-context';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "../components/ui/sheet";
 
 const securityFeatures = [
   {
@@ -40,6 +47,7 @@ const securityFeatures = [
 
 const LandingPage = () => {
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null);
 
   return (
@@ -87,25 +95,122 @@ const LandingPage = () => {
               </div>
             </button>
 
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-3"
-            >
-              <Link to="/login">
-                <Button variant="ghost" className="relative overflow-hidden group">
-                  <span className="relative z-10">Login</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+            {user ? (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="hidden md:flex items-center gap-4"
+              >
+                <div className="flex items-center gap-3 mr-2">
+                  <div className="hidden sm:flex flex-col items-end">
+                    <span className="text-sm font-medium text-foreground">{user.name}</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">{user.role}</span>
+                  </div>
+                  <div className="h-10 w-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+                    <span className="text-lg font-bold text-primary">{user.name.charAt(0).toUpperCase()}</span>
+                  </div>
+                </div>
+
+                <Link to={`/dashboard/${user.role}`}>
+                  <Button variant="security" className="relative overflow-hidden group">
+                    <span className="relative z-10">Dashboard</span>
+                    <ArrowRight className="ml-2 h-4 w-4 relative z-10 transition-transform group-hover:translate-x-1" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  </Button>
+                </Link>
+
+                <Button
+                  variant="ghost"
+                  onClick={logout}
+                  className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                >
+                  <span className="sr-only">Logout</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
                 </Button>
-              </Link>
-              <Link to="/register">
-                <Button variant="security" className="relative overflow-hidden group">
-                  <span className="relative z-10">Get Started</span>
-                  <ArrowRight className="ml-2 h-4 w-4 relative z-10 transition-transform group-hover:translate-x-1" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="hidden md:flex items-center gap-3"
+              >
+                <Link to="/login">
+                  <Button variant="ghost" className="relative overflow-hidden group">
+                    <span className="relative z-10">Login</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  </Button>
+                </Link>
+                <Link to="/register">
+                  <Button variant="security" className="relative overflow-hidden group">
+                    <span className="relative z-10">Get Started</span>
+                    <ArrowRight className="ml-2 h-4 w-4 relative z-10 transition-transform group-hover:translate-x-1" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/80 to-primary translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                  </Button>
+                </Link>
+              </motion.div>
+            )}
+
+            {/* Mobile Navigation (Hamburger) */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-6 w-6" />
                 </Button>
-              </Link>
-            </motion.div>
+              </SheetTrigger>
+              <SheetContent side="right">
+                <SheetTitle className="sr-only">Menu</SheetTitle>
+                <div className="flex flex-col gap-6 mt-8">
+                  {user ? (
+                    <>
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="h-12 w-12 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+                          <span className="text-xl font-bold text-primary">{user.name.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-lg font-semibold text-foreground">{user.name}</span>
+                          <span className="text-sm text-muted-foreground uppercase tracking-wider">{user.role}</span>
+                        </div>
+                      </div>
+
+                      <Link to={`/dashboard/${user.role}`} className="w-full">
+                        <Button variant="security" className="w-full justify-start h-12">
+                          <div className="h-6 w-6 rounded-full bg-background/20 flex items-center justify-center mr-3">
+                            <UserCheck className="h-4 w-4" />
+                          </div>
+                          Dashboard
+                        </Button>
+                      </Link>
+
+                      <Button
+                        variant="outline"
+                        onClick={logout}
+                        className="w-full justify-start h-12 text-destructive border-destructive/20 hover:bg-destructive/5"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-3"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></svg>
+                        Logout
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex flex-col gap-2 mb-4">
+                        <h3 className="text-lg font-semibold">Welcome</h3>
+                        <p className="text-sm text-muted-foreground">Log in to access your secure exam capabilities.</p>
+                      </div>
+                      <Link to="/login" className="w-full">
+                        <Button variant="outline" className="w-full justify-start h-12">
+                          Login
+                        </Button>
+                      </Link>
+                      <Link to="/register" className="w-full">
+                        <Button variant="security" className="w-full justify-start h-12">
+                          Get Started
+                        </Button>
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
@@ -161,17 +266,29 @@ const LandingPage = () => {
             transition={{ delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-5 justify-center items-center"
           >
-            <Link to="/login" className="group">
-              <Button size="xl" className="relative overflow-hidden px-8 h-14 text-lg group">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600" />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <Lock className="h-5 w-5 mr-3 relative z-10" />
-                <span className="relative z-10 font-semibold">Access Portal</span>
-                <ArrowRight className="ml-2 h-5 w-5 relative z-10 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
-
-
+            {user ? (
+              <Link to={`/dashboard/${user.role}`} className="group">
+                <Button size="xl" className="relative overflow-hidden px-8 h-14 text-lg group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="h-6 w-6 rounded-full bg-white/20 flex items-center justify-center mr-3 relative z-10">
+                    <UserCheck className="h-4 w-4 text-white" />
+                  </div>
+                  <span className="relative z-10 font-semibold">Go to Dashboard</span>
+                  <ArrowRight className="ml-2 h-5 w-5 relative z-10 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/login" className="group">
+                <Button size="xl" className="relative overflow-hidden px-8 h-14 text-lg group">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <Lock className="h-5 w-5 mr-3 relative z-10" />
+                  <span className="relative z-10 font-semibold">Access Portal</span>
+                  <ArrowRight className="ml-2 h-5 w-5 relative z-10 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            )}
           </motion.div>
         </div>
       </section>

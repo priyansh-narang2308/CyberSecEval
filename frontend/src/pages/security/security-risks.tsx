@@ -1,10 +1,8 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { Shield, Lock, AlertTriangle, Key, Eye, RefreshCw, Moon, Sun, ArrowLeft } from 'lucide-react';
-import { useTheme } from '../../contexts/theme-context';
+import { Shield, Lock, AlertTriangle, Key, Eye, RefreshCw } from 'lucide-react';
+import DashboardLayout from '../../components/dashboard-layout';
 
 const SecurityRisksPage = () => {
-  const { theme, toggleTheme } = useTheme();
 
   const attacks = [
     {
@@ -91,31 +89,13 @@ const SecurityRisksPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/50 backdrop-blur-md sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <Shield className="h-6 w-6 text-primary group-hover:rotate-12 transition-transform" />
-            <span className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              SecureExamVault
-            </span>
-          </Link>
-          <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-muted hover:bg-accent transition-all">
-            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-          </button>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-6 py-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-          <div>
-            <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline mb-4">
-              <ArrowLeft className="h-4 w-4" /> Back to Home
-            </Link>
-            <h1 className="text-4xl font-extrabold tracking-tight">Security Infrastructure</h1>
-            <p className="text-muted-foreground mt-2 text-lg">Proactive threat mitigation and defense protocols.</p>
-          </div>
-
+    <DashboardLayout role="admin" userName="Viewer">
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Security Infrastructure</h1>
+          <p className="text-muted-foreground">
+            Proactive threat mitigation and defense protocols.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -172,8 +152,8 @@ const SecurityRisksPage = () => {
             </div>
           </div>
         </motion.div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

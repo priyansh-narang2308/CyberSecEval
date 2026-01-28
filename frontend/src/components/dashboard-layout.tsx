@@ -1,23 +1,30 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   Shield,
   Moon,
   Sun,
   LogOut,
   Home,
-  FileText,
-  ClipboardList,
   User,
-  Settings,
-  Users,
   Key,
   Lock,
   FileCheck,
   Grid3X3
 } from 'lucide-react';
-import type { UserRole } from '../contexts/auth-context';
+import { useAuth, type UserRole } from '../contexts/auth-context';
 import { useTheme } from '../contexts/theme-context';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
 
 
 interface DashboardLayoutProps {
@@ -29,6 +36,13 @@ interface DashboardLayoutProps {
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userName = 'User' }) => {
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
 
   const studentLinks = [
     { icon: Home, label: 'Dashboard', href: '/dashboard/student' },
@@ -36,23 +50,25 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userN
 
   const facultyLinks = [
     { icon: Home, label: 'Dashboard', href: '/dashboard/faculty' },
-    { icon: FileText, label: 'Create Exam', href: '/dashboard/faculty/create-exam' },
-    { icon: ClipboardList, label: 'Evaluate Submissions', href: '/dashboard/faculty/evaluate' },
     { icon: FileCheck, label: 'Sign Results', href: '/dashboard/faculty/sign-results' },
-    { icon: Lock, label: 'Encrypted Submissions', href: '/dashboard/faculty/encrypted' },
-    { icon: User, label: 'Profile', href: '/dashboard/faculty/profile' },
   ];
 
   const adminLinks = [
     { icon: Home, label: 'Dashboard', href: '/dashboard/admin' },
-    { icon: Users, label: 'User Management', href: '/dashboard/admin/users' },
     { icon: Grid3X3, label: 'Access Control Matrix', href: '/dashboard/admin/access-matrix' },
     { icon: Key, label: 'Key Management', href: '/dashboard/admin/keys' },
-    { icon: FileText, label: 'System Logs', href: '/dashboard/admin/logs' },
-    { icon: Settings, label: 'Settings', href: '/dashboard/admin/settings' },
   ];
 
-  const links = role === 'student' ? studentLinks : role === 'faculty' ? facultyLinks : adminLinks;
+  const securityLinks = [
+    { icon: Lock, label: 'Encryption Details', href: '/security/encryption' },
+    { icon: Key, label: 'Key Exchange Info', href: '/security/keys' },
+    { icon: Shield, label: 'Hashing & Signatures', href: '/security/hashing' },
+    { icon: Grid3X3, label: 'Encoding Techniques', href: '/security/encoding' },
+    { icon: FileCheck, label: 'Risk Analysis', href: '/security/risks' },
+  ];
+
+  const roleLinks = role === 'student' ? studentLinks : role === 'faculty' ? facultyLinks : adminLinks;
+
 
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
@@ -66,23 +82,49 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userN
           </Link>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
-          {links.map((link) => {
-            const isActive = location.pathname === link.href;
-            return (
-              <Link
-                key={link.href}
-                to={link.href}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          <div className="mb-4 space-y-1">
+            {roleLinks.map((link) => {
+              const isActive = location.pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive
                     ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
                     : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                  }`}
-              >
-                <link.icon className="h-4 w-4" />
-                {link.label}
-              </Link>
-            );
-          })}
+                    }`}
+                >
+                  <link.icon className="h-4 w-4" />
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="pt-4 mt-4 border-t border-sidebar-border">
+            <h3 className="px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mb-2">
+              Security Concepts
+            </h3>
+            <div className="space-y-1">
+              {securityLinks.map((link) => {
+                const isActive = location.pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isActive
+                      ? 'bg-sidebar-accent/50 text-sidebar-accent-foreground font-medium'
+                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/30 hover:text-sidebar-foreground'
+                      }`}
+                  >
+                    <link.icon className="h-3.5 w-3.5" />
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         </nav>
 
         <div className="p-4 border-t border-sidebar-border">
@@ -95,13 +137,31 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userN
               <p className="text-xs text-sidebar-foreground/60">{roleLabel}</p>
             </div>
           </div>
-          <Link
-            to="/"
-            className="flex items-center gap-3 px-3 py-2 mt-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-            Sign Out
-          </Link>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                className="w-full flex items-center gap-3 px-3 py-2 mt-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors text-left"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Sign out of your account?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  You will be redirected to the home page. You'll need to sign in again to access the dashboard.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Sign Out
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </aside>
 

@@ -24,6 +24,7 @@ import DigitalSignaturePage from "./pages/security/digital-signature";
 import EncodingPage from "./pages/security/encoding-page";
 import SecurityRisksPage from "./pages/security/security-risks";
 import SecurityInfoPage from "./pages/security/security-info";
+import EncryptionPage from "./pages/security/encryption-page";
 
 
 
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/dashboard/faculty/sign-results" element={<DigitalSignaturePage />} />
               <Route path="/security/info" element={<SecurityInfoPage />} />
               <Route path="/security/keys" element={<KeyExchangePage />} />
+              <Route path="/security/encryption" element={<EncryptionPage />} />
               <Route path="/security/hashing" element={<HashingPage />} />
               <Route path="/security/signatures" element={<DigitalSignaturePage />} />
               <Route path="/security/encoding" element={<EncodingPage />} />
