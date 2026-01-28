@@ -37,7 +37,7 @@ const RESOURCES = {
     EXAMS: 'exams',
     SUBMISSIONS: 'submissions',
     RESULTS: 'results',
-    USERS: 'users' // Added for admin management
+    USERS: 'users'
 };
 
 const ACTIONS = {
@@ -48,7 +48,6 @@ const ACTIONS = {
     MANAGE: 'manage'
 };
 
-// THE ACCESS CONTROL MATRIX
 const ACCESS_CONTROL_MATRIX = {
     [ROLES.STUDENT]: {
         [RESOURCES.EXAMS]: [ACTIONS.READ],

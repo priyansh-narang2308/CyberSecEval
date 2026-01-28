@@ -4,11 +4,6 @@ import { RESOURCES, ACTIONS } from '../config/accessControlMatrix.js';
 
 const router = express.Router();
 
-/**
- * RESULT ROUTES
- * Resources: results
- */
-
 // @route   POST /api/results/sign
 // @access  Protected (Faculty - Sign)
 // Faculty must sign results before they are published.

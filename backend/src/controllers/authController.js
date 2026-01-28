@@ -30,7 +30,7 @@ export const registerUser = async (req, res) => {
             universityId,
             role: role || 'student',
             passwordHash,
-            mfaEnabled: mfaEnabled !== undefined ? mfaEnabled : true // Default to true if not specified, or respect input
+            mfaEnabled: mfaEnabled !== undefined ? mfaEnabled : true
         });
 
         res.status(201).json({
@@ -61,7 +61,6 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
-        // Check if MFA is enabled
         if (user.mfaEnabled) {
             const otp = generateOTP();
             const otpHash = await hashContent(otp);
@@ -71,7 +70,6 @@ export const loginUser = async (req, res) => {
             user.mfaExpiry = otpExpiry;
             await user.save();
 
-            // Send OTP via email
             await sendOTP(user.email, otp);
 
             return res.status(200).json({
@@ -81,7 +79,6 @@ export const loginUser = async (req, res) => {
             });
         }
 
-        // If MFA is disabled, return token immediately
         const token = generateToken({
             userId: user._id,
             role: user.role

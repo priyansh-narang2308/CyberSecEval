@@ -1,10 +1,5 @@
 import mongoose from 'mongoose';
 
-/**
- * SIGNED RESULT SCHEMA
- * 
- * Stores the exam result along with its cryptographic proof (Signature).
- */
 const signedResultSchema = new mongoose.Schema({
     studentName: {
         type: String,
@@ -25,12 +20,12 @@ const signedResultSchema = new mongoose.Schema({
     },
     // The SHA-256 Hash of the resultData (Integrity Check)
     hash: {
-        type: String, // Hex string
+        type: String,
         required: true
     },
     // The RSA Signature of the Hash (Authenticity + Non-Repudiation)
     signature: {
-        type: String, // Hex string
+        type: String,
         required: true
     },
     signedBy: {

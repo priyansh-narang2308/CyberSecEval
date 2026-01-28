@@ -4,11 +4,6 @@ import { RESOURCES, ACTIONS } from '../config/accessControlMatrix.js';
 
 const router = express.Router();
 
-/**
- * EXAM ROUTES
- * Resources: exams
- */
-
 // @route   GET /api/exams
 // @access  Protected (Student, Faculty, Admin - Read)
 router.get('/', protect, authorize(RESOURCES.EXAMS, ACTIONS.READ), (req, res) => {

@@ -4,11 +4,6 @@ import { RESOURCES, ACTIONS } from '../config/accessControlMatrix.js';
 
 const router = express.Router();
 
-/**
- * SUBMISSION ROUTES
- * Resources: submissions
- */
-
 // @route   POST /api/submissions/evaluate
 // @access  Protected (Faculty - Evaluate)
 // Note: Students can write submissions (via a different endpoint typically), 

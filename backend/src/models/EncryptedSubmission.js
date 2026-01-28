@@ -12,18 +12,18 @@ const encryptedSubmissionSchema = new mongoose.Schema({
     },
     // The actual submission content (answers), encrypted with AES
     encryptedData: {
-        type: String, // Hex string
+        type: String,
         required: true
     },
     // The Initialization Vector used for the AES encryption (must be unique per record)
     iv: {
-        type: String, // Hex string
+        type: String,
         required: true
     },
     // The AES key used to encrypt the data, ITSELF encrypted with the Server's RSA Public Key.
     // This creates the "Hybrid" envelope.
     encryptedSessionKey: {
-        type: String, // Hex string
+        type: String,
         required: true
     },
     createdAt: {
