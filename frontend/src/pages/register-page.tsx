@@ -7,7 +7,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import type { UserRole } from '../contexts/auth-context';
 import { useAuth } from '../contexts/auth-context';
-import { useToast } from '../components/ui/use-toast';
+import { toast } from 'sonner';
 
 type Step = 1 | 2 | 3;
 
@@ -17,7 +17,6 @@ const RegisterPage = () => {
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const { register } = useAuth();
-    const { toast } = useToast();
 
     // Step 1: Identity
     const [fullName, setFullName] = useState('');
@@ -62,17 +61,10 @@ const RegisterPage = () => {
         setIsLoading(false);
 
         if (result.success) {
-            toast({
-                title: 'Registration Successful',
-                description: result.message,
-            });
+            toast.success(result.message);
             navigate('/login');
         } else {
-            toast({
-                title: 'Registration Failed',
-                description: result.message,
-                variant: 'destructive',
-            });
+            toast.error(result.message);
         }
     };
 

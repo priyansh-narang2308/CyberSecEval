@@ -8,7 +8,7 @@ import { Button } from '../components/ui/button';
 
 
 import { useAuth } from '../contexts/auth-context';
-import { useToast } from '../components/ui/use-toast';
+import { toast } from 'sonner';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -18,7 +18,6 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const { login } = useAuth();
-  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,12 +28,9 @@ const LoginPage = () => {
 
     if (result.success && result.requiresMfa) {
       navigate('/mfa-verify', { state: { identifier: email } });
+      toast.success("MFA Verification Required")
     } else if (!result.success) {
-      toast({
-        title: 'Login Failed',
-        description: result.message,
-        variant: 'destructive',
-      });
+      toast.error(result.message);
     }
   };
 
