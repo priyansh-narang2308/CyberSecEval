@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Lock, Mail, IdCard, Check, Moon, Sun, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Shield, Lock, Mail, Check, Moon, Sun, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useTheme } from '../contexts/theme-context';
 import { Label } from '../components/ui/label';
 import { Input } from '../components/ui/input';
@@ -18,19 +18,14 @@ const RegisterPage = () => {
     const navigate = useNavigate();
     const { register } = useAuth();
 
-    // Step 1: Identity
     const [fullName, setFullName] = useState('');
     const [universityId, setUniversityId] = useState('');
     const [email, setEmail] = useState('');
     const [role, setRole] = useState<UserRole>('student');
 
-    // Step 2: Credentials
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
-    // Step 3: MFA
-    const [mfaMethod, setMfaMethod] = useState<'email' | 'authenticator'>('email');
 
     const getPasswordStrength = (pass: string): { level: number; label: string } => {
         let score = 0;
@@ -229,39 +224,16 @@ const RegisterPage = () => {
             </div>
 
             <div className="space-y-3">
-                <Label>Choose MFA Method</Label>
-                <button
-                    type="button"
-                    onClick={() => setMfaMethod('email')}
-                    className={`w-full p-4 rounded-lg border text-left transition-colors ${mfaMethod === 'email'
-                        ? 'bg-primary/5 border-primary'
-                        : 'bg-card border-border hover:bg-accent'
-                        }`}
-                >
+                <Label>MFA Method</Label>
+                <div className="w-full p-4 rounded-lg border bg-primary/5 border-primary">
                     <div className="flex items-start gap-3">
-                        <Mail className={`h-5 w-5 mt-0.5 ${mfaMethod === 'email' ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <Mail className="h-5 w-5 mt-0.5 text-primary" />
                         <div>
                             <p className="font-medium text-foreground">Email OTP</p>
-                            <p className="text-sm text-muted-foreground">Receive verification codes via email</p>
+                            <p className="text-sm text-muted-foreground">Receive verification codes via email (Default)</p>
                         </div>
                     </div>
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setMfaMethod('authenticator')}
-                    className={`w-full p-4 rounded-lg border text-left transition-colors ${mfaMethod === 'authenticator'
-                        ? 'bg-primary/5 border-primary'
-                        : 'bg-card border-border hover:bg-accent'
-                        }`}
-                >
-                    <div className="flex items-start gap-3">
-                        <IdCard className={`h-5 w-5 mt-0.5 ${mfaMethod === 'authenticator' ? 'text-primary' : 'text-muted-foreground'}`} />
-                        <div>
-                            <p className="font-medium text-foreground">Authenticator App</p>
-                            <p className="text-sm text-muted-foreground">Use Google Authenticator or similar apps</p>
-                        </div>
-                    </div>
-                </button>
+                </div>
             </div>
 
             <div className="flex gap-3">
@@ -279,11 +251,10 @@ const RegisterPage = () => {
 
     return (
         <div className="min-h-screen bg-background flex">
-            {/* Left Panel */}
             <div className="hidden lg:flex lg:w-1/2 bg-primary p-12 flex-col justify-between">
                 <div className="flex items-center gap-2">
                     <Shield className="h-8 w-8 text-primary-foreground" />
-                    <span className="text-xl font-semibold text-primary-foreground">SecureExamVault</span>
+                    <span className="text-xl font-semibol₹d text-primary-foreground">SecureExamVault</span>
                 </div>
                 <div className="text-primary-foreground">
                     <h1 className="text-4xl font-bold mb-4">Secure Registration</h1>
@@ -297,7 +268,6 @@ const RegisterPage = () => {
                 </div>
             </div>
 
-            {/* Right Panel */}
             <div className="w-full lg:w-1/2 flex flex-col">
                 <div className="flex justify-between items-center p-6">
                     <Link to="/" className="flex items-center gap-2 lg:hidden">
@@ -327,7 +297,6 @@ const RegisterPage = () => {
                             </p>
                         </div>
 
-                        {/* Progress Indicator */}
                         <div className="flex gap-2 mb-8">
                             {[1, 2, 3].map((s) => (
                                 <div

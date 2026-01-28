@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Lock, KeyRound, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../contexts/theme-context';
@@ -9,7 +9,7 @@ import { useToast } from '../components/ui/use-toast';
 
 const MFAVerifyPage = () => {
     const [otp, setOtp] = useState('');
-    const [timeLeft, setTimeLeft] = useState(300); // NIST standard for OTP is often longer than 2 mins
+    const [timeLeft, setTimeLeft] = useState(300);
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
@@ -17,7 +17,6 @@ const MFAVerifyPage = () => {
     const { verifyMfa } = useAuth();
     const { toast } = useToast();
 
-    // The identifier (email/username) passed from the login page
     const identifier = location.state?.identifier;
 
     useEffect(() => {
@@ -51,7 +50,7 @@ const MFAVerifyPage = () => {
                 title: 'Verification Successful',
                 description: 'Welcome to SecureExamVault',
             });
-            navigate('/dashboard/student'); // Default to student for now, could redirect based on role
+            navigate('/dashboard/student');
         } else {
             toast({
                 title: 'Verification Failed',

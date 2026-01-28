@@ -5,19 +5,18 @@ import { AuthProvider } from "./contexts/auth-context";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { Toaster } from "sonner";
 
-// Pages
 import LandingPage from "./pages/landing-page";
 import LoginPage from "./pages/login-page";
 import RegisterPage from "./pages/register-page";
 import MFAVerifyPage from "./pages/mfa-verify";
 import NotFound from "./pages/not-found";
 
-// Dashboards
+
 import StudentDashboard from "./pages/dashboards/student-dashboard";
 import FacultyDashboard from "./pages/dashboards/faculty-dashboard";
 import AdminDashboard from "./pages/dashboards/admin-dashboard";
 
-// Security Pages
+
 import AccessMatrixPage from "./pages/security/access-matrix-page";
 import KeyExchangePage from "./pages/security/key-exchange-pair";
 import HashingPage from "./pages/security/hashing-page";
@@ -38,18 +37,16 @@ const App = () => (
           <Toaster richColors position="bottom-right" />
           <BrowserRouter>
             <Routes>
-              {/* Public Routes */}
+
               <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/mfa-verify" element={<MFAVerifyPage />} />
 
-              {/* Dashboard Routes */}
               <Route path="/dashboard/student" element={<StudentDashboard />} />
               <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
               <Route path="/dashboard/admin" element={<AdminDashboard />} />
 
-              {/* Security Pages */}
               <Route path="/dashboard/admin/access-matrix" element={<AccessMatrixPage />} />
               <Route path="/dashboard/admin/keys" element={<KeyExchangePage />} />
               <Route path="/dashboard/faculty/sign-results" element={<DigitalSignaturePage />} />
@@ -60,7 +57,6 @@ const App = () => (
               <Route path="/security/encoding" element={<EncodingPage />} />
               <Route path="/security/risks" element={<SecurityRisksPage />} />
 
-              {/* Catch-all */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

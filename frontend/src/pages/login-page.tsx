@@ -36,7 +36,6 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left Panel - Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary p-12 flex-col justify-between">
         <div className="flex items-center gap-2">
           <Shield className="h-8 w-8 text-primary-foreground" />
@@ -54,7 +53,6 @@ const LoginPage = () => {
         </div>
       </div>
 
-      {/* Right Panel - Login Form */}
       <div className="w-full lg:w-1/2 flex flex-col">
         <div className="flex justify-between items-center p-6">
           <Link to="/" className="flex items-center gap-2 lg:hidden">

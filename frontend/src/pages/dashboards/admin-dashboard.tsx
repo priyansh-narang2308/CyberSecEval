@@ -36,6 +36,7 @@ const AdminDashboard = () => {
     if (user) {
       checkAccess();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const stats = [

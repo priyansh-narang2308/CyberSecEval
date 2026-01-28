@@ -8,7 +8,6 @@ import {
   Home,
   FileText,
   ClipboardList,
-  BarChart3,
   User,
   Settings,
   Users,
@@ -33,10 +32,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userN
 
   const studentLinks = [
     { icon: Home, label: 'Dashboard', href: '/dashboard/student' },
-    { icon: FileText, label: 'View Exams', href: '/dashboard/student/exams' },
-    { icon: ClipboardList, label: 'Take Exam', href: '/dashboard/student/take-exam' },
-    { icon: BarChart3, label: 'View Results', href: '/dashboard/student/results' },
-    { icon: User, label: 'Profile & Security', href: '/dashboard/student/profile' },
   ];
 
   const facultyLinks = [
@@ -63,7 +58,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userN
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
       <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
         <div className="p-6 border-b border-sidebar-border">
           <Link to="/" className="flex items-center gap-2">
@@ -111,9 +105,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userN
         </div>
       </aside>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
-        {/* Top Bar */}
         <header className="h-16 bg-card border-b flex items-center justify-between px-6">
           <div className="flex items-center gap-2">
             <span className="security-badge">
@@ -140,7 +132,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userN
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 p-6 overflow-auto">
           {children}
         </main>
