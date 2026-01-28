@@ -9,7 +9,6 @@ const HashingPage = () => {
   const [password, setPassword] = useState('');
   const [showDemo, setShowDemo] = useState(false);
 
-  // Simulated hash output (for demonstration only)
   const simulatedSalt = 'a7f3b2c1d9e8f0a1';
   const simulatedHash = password 
     ? `sha256$${simulatedSalt}$${btoa(password + simulatedSalt).slice(0, 44)}...`
@@ -52,7 +51,7 @@ const HashingPage = () => {
           </p>
         </div>
 
-        {/* Security Summary */}
+
         <div className="grid md:grid-cols-3 gap-4 mb-8">
           <div className="bg-card border rounded-xl p-5">
             <div className="flex items-center gap-3 mb-2">
@@ -83,7 +82,7 @@ const HashingPage = () => {
           </div>
         </div>
 
-        {/* Interactive Demo */}
+
         <div className="bg-card border rounded-xl p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Hashing Demonstration</h2>
@@ -122,7 +121,7 @@ const HashingPage = () => {
           )}
         </div>
 
-        {/* Step by Step Process */}
+
         <div className="bg-card border rounded-xl p-6 mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-6">Hashing Process</h2>
           <div className="space-y-4">
@@ -152,7 +151,7 @@ const HashingPage = () => {
           </div>
         </div>
 
-        {/* Important Notice */}
+
         <div className="p-4 rounded-lg bg-destructive/5 border border-destructive/20">
           <div className="flex items-start gap-3">
             <Shield className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />

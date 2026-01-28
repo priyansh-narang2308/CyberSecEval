@@ -4,10 +4,6 @@ import { Shield, Check, X } from 'lucide-react';
 
 type Permission = 'read' | 'write' | 'update' | 'deny';
 
-interface AccessCell {
-  permission: Permission;
-}
-
 const AccessMatrixPage = () => {
   const resources = ['Exams', 'Results', 'User Records', 'System Logs', 'Keys'];
   const roles = ['Student', 'Faculty', 'Admin'];
@@ -75,7 +71,6 @@ const AccessMatrixPage = () => {
           </p>
         </div>
 
-        {/* Legend */}
         <div className="mb-6 p-4 bg-card border rounded-lg">
           <h3 className="text-sm font-medium text-foreground mb-3">Permission Legend</h3>
           <div className="flex flex-wrap gap-4">
@@ -98,7 +93,7 @@ const AccessMatrixPage = () => {
           </div>
         </div>
 
-        {/* Matrix Table */}
+
         <div className="bg-card border rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -141,7 +136,7 @@ const AccessMatrixPage = () => {
           </div>
         </div>
 
-        {/* Explanation */}
+
         <div className="mt-6 grid md:grid-cols-3 gap-4">
           <div className="p-4 rounded-lg bg-card border">
             <h3 className="font-semibold text-foreground mb-2">Student Access</h3>
@@ -163,7 +158,7 @@ const AccessMatrixPage = () => {
           </div>
         </div>
 
-        {/* Security Note */}
+
         <div className="mt-6 p-4 rounded-lg bg-primary/5 border border-primary/20">
           <div className="flex items-start gap-3">
             <Shield className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />

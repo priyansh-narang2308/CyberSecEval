@@ -61,7 +61,7 @@ const SecurityInfoPage = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -98,7 +98,7 @@ const SecurityInfoPage = () => {
             </p>
           </div>
 
-          {/* Security Overview */}
+
           <div className="grid md:grid-cols-3 gap-4 mb-10">
             <div className="bg-card border rounded-xl p-5">
               <div className="flex items-center gap-3 mb-3">
@@ -135,7 +135,7 @@ const SecurityInfoPage = () => {
             </div>
           </div>
 
-          {/* Topic Cards */}
+
           <h2 className="text-xl font-semibold text-foreground mb-4">Security Documentation</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {securityTopics.map((topic, index) => (

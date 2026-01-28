@@ -32,7 +32,7 @@ const KeyExchangePage = () => {
           </p>
         </div>
 
-        {/* Encryption Status */}
+
         <div className="grid md:grid-cols-2 gap-4 mb-8">
           <div className="bg-card border rounded-xl p-6">
             <div className="flex items-center gap-3 mb-3">
@@ -64,7 +64,7 @@ const KeyExchangePage = () => {
           </div>
         </div>
 
-        {/* Key Exchange Process */}
+
         <div className="bg-card border rounded-xl p-6 mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-6">Key Exchange Process</h2>
           <div className="space-y-6">
@@ -94,7 +94,7 @@ const KeyExchangePage = () => {
           </div>
         </div>
 
-        {/* Visual Diagram */}
+
         <div className="bg-card border rounded-xl p-6 mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-6">Secure Communication Flow</h2>
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
@@ -126,7 +126,7 @@ const KeyExchangePage = () => {
           </div>
         </div>
 
-        {/* Security Note */}
+
         <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
           <div className="flex items-start gap-3">
             <Shield className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />

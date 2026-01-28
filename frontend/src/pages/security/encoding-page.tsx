@@ -36,7 +36,7 @@ const EncodingPage = () => {
           </p>
         </div>
 
-        {/* Warning */}
+
         <div className="p-4 rounded-lg bg-warning/10 border border-warning/20 mb-8">
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
@@ -51,12 +51,12 @@ const EncodingPage = () => {
           </div>
         </div>
 
-        {/* Interactive Demo */}
+
         <div className="bg-card border rounded-xl p-6 mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-6">Base64 Encoding Demo</h2>
 
           <div className="space-y-6">
-            {/* Input */}
+
             <div>
               <label className="text-sm font-medium text-foreground mb-2 block">Input Text</label>
               <Input
@@ -67,13 +67,11 @@ const EncodingPage = () => {
               />
             </div>
 
-            {/* Encode Button */}
             <Button onClick={handleEncode} variant="security">
               <Code className="h-4 w-4" />
               Encode to Base64
             </Button>
 
-            {/* Encoded Output */}
             {encoded && (
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Encoded Output (Base64)</label>
@@ -83,7 +81,7 @@ const EncodingPage = () => {
               </div>
             )}
 
-            {/* Decode Button */}
+
             {encoded && !encoded.startsWith('Error') && (
               <Button onClick={handleDecode} variant="outline">
                 <ArrowRight className="h-4 w-4" />
@@ -91,7 +89,7 @@ const EncodingPage = () => {
               </Button>
             )}
 
-            {/* Decoded Output */}
+
             {decoded && (
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Decoded Output</label>
@@ -103,7 +101,7 @@ const EncodingPage = () => {
           </div>
         </div>
 
-        {/* Comparison Table */}
+
         <div className="bg-card border rounded-xl p-6 mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-4">Encoding vs Encryption</h2>
           <div className="overflow-x-auto">
@@ -141,7 +139,7 @@ const EncodingPage = () => {
           </div>
         </div>
 
-        {/* Use Cases */}
+
         <div className="p-4 rounded-lg bg-muted border">
           <h3 className="font-medium text-foreground mb-2">When We Use Encoding</h3>
           <ul className="text-sm text-muted-foreground space-y-1">

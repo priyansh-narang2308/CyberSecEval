@@ -39,7 +39,7 @@ const DigitalSignaturePage = () => {
           </p>
         </div>
 
-        {/* Explanation */}
+
         <div className="bg-card border rounded-xl p-6 mb-8">
           <div className="flex items-start gap-4">
             <div className="p-3 rounded-lg bg-primary/10">
@@ -65,7 +65,7 @@ const DigitalSignaturePage = () => {
           </div>
         </div>
 
-        {/* Pending Signatures */}
+
         <div className="bg-card border rounded-xl p-6 mb-6">
           <h2 className="text-lg font-semibold text-foreground mb-4">Pending Signatures</h2>
           {pendingResults.length > 0 ? (
@@ -98,7 +98,6 @@ const DigitalSignaturePage = () => {
           )}
         </div>
 
-        {/* Signed Results */}
         <div className="bg-card border rounded-xl p-6 mb-8">
           <h2 className="text-lg font-semibold text-foreground mb-4">Signed Results</h2>
           <div className="space-y-4">
@@ -127,7 +126,7 @@ const DigitalSignaturePage = () => {
           </div>
         </div>
 
-        {/* Security Note */}
+
         <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
           <div className="flex items-start gap-3">
             <Shield className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
