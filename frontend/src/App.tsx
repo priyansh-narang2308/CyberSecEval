@@ -17,16 +17,7 @@ import FacultyDashboard from "./pages/dashboards/faculty-dashboard";
 import AdminDashboard from "./pages/dashboards/admin-dashboard";
 
 
-import AccessMatrixPage from "./pages/security/access-matrix-page";
-import KeyExchangePage from "./pages/security/key-exchange-pair";
-import HashingPage from "./pages/security/hashing-page";
-import DigitalSignaturePage from "./pages/security/digital-signature";
-import EncodingPage from "./pages/security/encoding-page";
-import SecurityRisksPage from "./pages/security/security-risks";
-import SecurityInfoPage from "./pages/security/security-info";
-import EncryptionPage from "./pages/security/encryption-page";
 import SecurityLab from "./pages/security/security-lab";
-
 
 
 const queryClient = new QueryClient();
@@ -49,16 +40,7 @@ const App = () => (
               <Route path="/dashboard/faculty" element={<FacultyDashboard />} />
               <Route path="/dashboard/admin" element={<AdminDashboard />} />
 
-              <Route path="/dashboard/admin/access-matrix" element={<AccessMatrixPage />} />
-              <Route path="/dashboard/admin/keys" element={<KeyExchangePage />} />
-              <Route path="/dashboard/faculty/sign-results" element={<DigitalSignaturePage />} />
-              <Route path="/security/info" element={<SecurityInfoPage />} />
-              <Route path="/security/keys" element={<KeyExchangePage />} />
-              <Route path="/security/encryption" element={<EncryptionPage />} />
-              <Route path="/security/hashing" element={<HashingPage />} />
-              <Route path="/security/signatures" element={<DigitalSignaturePage />} />
-              <Route path="/security/encoding" element={<EncodingPage />} />
-              <Route path="/security/risks" element={<SecurityRisksPage />} />
+
               <Route path="/security/lab" element={<SecurityLab />} />
 
               <Route path="*" element={<NotFound />} />

@@ -11,7 +11,7 @@ import {
   Lock,
   FileCheck,
   Grid3X3,
-  Zap
+  ChevronUp
 } from 'lucide-react';
 import { useAuth, type UserRole } from '../contexts/auth-context';
 import { useTheme } from '../contexts/theme-context';
@@ -26,7 +26,25 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../components/ui/alert-dialog";
-
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+  SidebarInset,
+} from "../components/ui/sidebar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu"
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -60,144 +78,140 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userN
     { icon: Key, label: 'Key Management', href: '/dashboard/admin/keys' },
   ];
 
-  const securityLinks = [
-    { icon: Lock, label: 'Encryption Details', href: '/security/encryption' },
-    { icon: Key, label: 'Key Exchange Info', href: '/security/keys' },
-    { icon: Shield, label: 'Hashing & Signatures', href: '/security/hashing' },
-    { icon: Grid3X3, label: 'Encoding Techniques', href: '/security/encoding' },
-    { icon: Zap, label: 'Live Security Lab', href: '/security/lab' },
-  ];
-
   const roleLinks = role === 'student' ? studentLinks : role === 'faculty' ? facultyLinks : adminLinks;
-
-
   const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
-        <div className="p-6 border-b border-sidebar-border">
-          <Link to="/" className="flex items-center gap-2">
-            <Shield className="h-7 w-7 text-sidebar-primary" />
-            <span className="font-semibold text-sidebar-foreground">SecureExamVault</span>
-          </Link>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          <div className="mb-4 space-y-1">
-            {roleLinks.map((link) => {
-              const isActive = location.pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'
-                    }`}
-                >
-                  <link.icon className="h-4 w-4" />
-                  {link.label}
-                </Link>
-              );
-            })}
-          </div>
-
-          <div className="pt-4 mt-4 border-t border-sidebar-border">
-            <h3 className="px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mb-2">
-              Security Concepts
-            </h3>
-            <div className="space-y-1">
-              {securityLinks.map((link) => {
-                const isActive = location.pathname === link.href;
-                return (
-                  <Link
-                    key={link.href}
-                    to={link.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isActive
-                      ? 'bg-sidebar-accent/50 text-sidebar-accent-foreground font-medium'
-                      : 'text-sidebar-foreground/60 hover:bg-sidebar-accent/30 hover:text-sidebar-foreground'
-                      }`}
-                  >
-                    <link.icon className="h-3.5 w-3.5" />
-                    {link.label}
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <Sidebar collapsible="icon" className="border-r border-border">
+          <SidebarHeader className="p-4 border-b border-border">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg" asChild>
+                  <Link to="/" className="flex items-center gap-2">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                      <Shield className="size-4" />
+                    </div>
+                    <div className="flex flex-col gap-0.5 leading-none">
+                      <span className="font-semibold tracking-tight">SecureVault</span>
+                      <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Enterprise</span>
+                    </div>
                   </Link>
-                );
-              })}
-            </div>
-          </div>
-        </nav>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarHeader>
 
-        <div className="p-4 border-t border-sidebar-border">
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center">
-              <User className="h-4 w-4 text-sidebar-accent-foreground" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">{userName}</p>
-              <p className="text-xs text-sidebar-foreground/60">{roleLabel}</p>
-            </div>
-          </div>
+          <SidebarContent className="p-2">
+            <SidebarMenu>
+              {roleLinks.map((link) => (
+                <SidebarMenuItem key={link.href}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={location.pathname === link.href}
+                    tooltip={link.label}
+                  >
+                    <Link to={link.href} className="flex items-center gap-3">
+                      <link.icon className="h-4 w-4" />
+                      <span className="font-medium">{link.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarContent>
 
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
+          <SidebarFooter className="p-4 border-t border-border">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+                      <div className="flex aspect-square size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <User className="size-4" />
+                      </div>
+                      <div className="grid flex-1 text-left text-sm leading-tight">
+                        <span className="truncate font-semibold">{userName}</span>
+                        <span className="truncate text-xs text-muted-foreground">{roleLabel}</span>
+                      </div>
+                      <ChevronUp className="ml-auto size-4" />
+                    </SidebarMenuButton>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    side="top"
+                    className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg pointer-events-auto"
+                    align="start"
+                    sideOffset={4}
+                  >
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive cursor-pointer">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Sign Out</span>
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Sign out of your account?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            You will be redirected to the home page. You'll need to sign in again to access the dashboard.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Sign Out
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+          <SidebarRail />
+        </Sidebar>
+
+        <SidebarInset>
+          <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="-ml-1" />
+              <div className="h-4 w-px bg-border" />
+              <div className="flex items-center gap-2">
+                <span className="security-badge">
+                  <Lock className="h-3 w-3" />
+                  {roleLabel} Access
+                </span>
+                <span className="encrypted-badge hidden sm:flex">
+                  <Lock className="h-3 w-3" />
+                  Session Encrypted
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
               <button
-                className="w-full flex items-center gap-3 px-3 py-2 mt-2 rounded-lg text-sm text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground transition-colors text-left"
+                onClick={toggleTheme}
+                className="p-2 rounded-md hover:bg-accent transition-colors"
+                aria-label="Toggle theme"
               >
-                <LogOut className="h-4 w-4" />
-                Sign Out
+                {theme === 'light' ? (
+                  <Moon className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <Sun className="h-5 w-5 text-muted-foreground" />
+                )}
               </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Sign out of your account?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  You will be redirected to the home page. You'll need to sign in again to access the dashboard.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleLogout} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                  Sign Out
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      </aside>
+            </div>
+          </header>
 
-      <div className="flex-1 flex flex-col">
-        <header className="h-16 bg-card border-b flex items-center justify-between px-6">
-          <div className="flex items-center gap-2">
-            <span className="security-badge">
-              <Lock className="h-3 w-3" />
-              {roleLabel} Access
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="encrypted-badge">
-              <Lock className="h-3 w-3" />
-              Session Encrypted
-            </span>
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-md hover:bg-accent transition-colors"
-              aria-label="Toggle theme"
-            >
-              {theme === 'light' ? (
-                <Moon className="h-5 w-5 text-muted-foreground" />
-              ) : (
-                <Sun className="h-5 w-5 text-muted-foreground" />
-              )}
-            </button>
-          </div>
-        </header>
-
-        <main className="flex-1 p-6 overflow-auto">
-          {children}
-        </main>
+          <main className="p-6">
+            {children}
+          </main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

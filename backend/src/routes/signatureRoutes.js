@@ -22,10 +22,10 @@ router.post('/sign-result', protect, authorize(RESOURCES.RESULTS, ACTIONS.SIGN),
 
         // 1. Construct the data object to be signed
         const resultData = {
-            studentName,
             examTitle,
             score,
-            timestamp: new Date().toISOString() // Include timestamp to prevent replay attacks
+            studentName,
+            timestamp: new Date().toISOString()
         };
 
         // 2. Generate Hash and Digital Signature
@@ -120,19 +120,14 @@ router.post('/verify/:id', protect, async (req, res) => {
     }
 });
 
-/**
- * @route   GET /api/signature/results
- * @access  Protected
- * @desc    Retrieves all digitally signed results.
- */
-router.get('/results', protect, async (req, res) => {
+router.get('/my-results', protect, async (req, res) => {
     try {
-        const results = await SignedResult.find()
+        const results = await SignedResult.find({ studentName: req.user.name })
             .populate('signedBy', 'name')
             .sort({ createdAt: -1 });
         res.status(200).json(results);
     } catch (error) {
-        res.status(500).json({ message: 'Failed to fetch signed results' });
+        res.status(500).json({ message: 'Failed to fetch personal results' });
     }
 });
 

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { createContext, useContext, useState, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, type ReactNode, useCallback } from 'react';
 
 export type UserRole = 'student' | 'faculty' | 'admin';
 
@@ -16,10 +15,11 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   login: (identifier: string, password: string) => Promise<{ success: boolean; requiresMfa?: boolean; message?: string }>;
-  register: (userData: any) => Promise<{ success: boolean; message?: string }>;
+  register: (userData: Record<string, unknown>) => Promise<{ success: boolean; message?: string }>;
   verifyMfa: (identifier: string, otp: string) => Promise<{ success: boolean; message?: string; user?: User }>;
   logout: () => void;
   setUser: (user: User | null) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiCall: (endpoint: string, options?: RequestInit) => Promise<{ ok: boolean; status: number; data: any }>;
 }
 
@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
-  const login = async (identifier: string, password: string): Promise<{ success: boolean; requiresMfa?: boolean; message?: string }> => {
+  const login = useCallback(async (identifier: string, password: string): Promise<{ success: boolean; requiresMfa?: boolean; message?: string }> => {
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
@@ -52,9 +52,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('Login error:', error);
       return { success: false, message: 'Server connection error' };
     }
-  };
+  }, []);
 
-  const register = async (userData: any): Promise<{ success: boolean; message?: string }> => {
+  const register = useCallback(async (userData: Record<string, unknown>): Promise<{ success: boolean; message?: string }> => {
     try {
       const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
@@ -73,9 +73,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('Registration error:', error);
       return { success: false, message: 'Server connection error' };
     }
-  };
+  }, []);
 
-  const verifyMfa = async (identifier: string, otp: string): Promise<{ success: boolean; message?: string; user?: User }> => {
+  const verifyMfa = useCallback(async (identifier: string, otp: string): Promise<{ success: boolean; message?: string; user?: User }> => {
     try {
       const response = await fetch(`${API_URL}/auth/mfa-verify`, {
         method: 'POST',
@@ -97,15 +97,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.error('MFA Verify error:', error);
       return { success: false, message: 'Server connection error' };
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-  };
+  }, []);
 
-  const apiCall = async (endpoint: string, options: RequestInit = {}) => {
+  const apiCall = useCallback(async (endpoint: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('token');
     const headers = {
       'Content-Type': 'application/json',
@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const data = await response.json();
     return { ok: response.ok, status: response.status, data };
-  };
+  }, []);
 
   return (
     <AuthContext.Provider

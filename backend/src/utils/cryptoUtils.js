@@ -17,42 +17,47 @@ import crypto from 'crypto';
  */
 
 // Store keys in memory for this active session (In production, Private Key would be in a secure Vault/HSM)
+import fs from 'fs';
+import path from 'path';
+
+const KEYS_DIR = path.join(process.cwd(), 'keys');
+const PRIVATE_KEY_PATH = path.join(KEYS_DIR, 'private.pem');
+const PUBLIC_KEY_PATH = path.join(KEYS_DIR, 'public.pem');
+
 let storedPrivateKey = null;
 let storedPublicKey = null;
 
-/**
- * 1. RSA KEY GENERATION
- * Generates a 2048-bit RSA key pair.
- * The private key is kept strictly on the server.
- */
 export const generateKeyPair = () => {
-    if (storedPrivateKey && storedPublicKey) return; // Keys already generated
+    if (storedPrivateKey && storedPublicKey) return;
 
-    console.log('[CRYPTO] Generating 2048-bit RSA Key Pair...');
+    if (fs.existsSync(PRIVATE_KEY_PATH) && fs.existsSync(PUBLIC_KEY_PATH)) {
+        storedPrivateKey = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8');
+        storedPublicKey = fs.readFileSync(PUBLIC_KEY_PATH, 'utf8');
+        console.log('[CRYPTO] Persistent keys loaded from disk.');
+        return;
+    }
+
+    console.log('[CRYPTO] Generating new 2048-bit RSA Key Pair...');
     const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
         modulusLength: 2048,
-        publicKeyEncoding: {
-            type: 'spki',
-            format: 'pem'
-        },
-        privateKeyEncoding: {
-            type: 'pkcs8',
-            format: 'pem' // In a real app, adding a 'cipher' and 'passphrase' adds security at rest
-        }
+        publicKeyEncoding: { type: 'spki', format: 'pem' },
+        privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
     });
 
     storedPublicKey = publicKey;
     storedPrivateKey = privateKey;
-    console.log('[CRYPTO] Keys generated successfully.');
+
+    if (!fs.existsSync(KEYS_DIR)) fs.mkdirSync(KEYS_DIR, { recursive: true });
+    fs.writeFileSync(PRIVATE_KEY_PATH, privateKey);
+    fs.writeFileSync(PUBLIC_KEY_PATH, publicKey);
+    console.log('[CRYPTO] New keys generated and saved to disk.');
 };
 
-/**
- * Force generates a new RSA Key Pair for the server.
- * All previous session keys encrypted with the old public key will become undecryptable.
- */
 export const rotateKeyPair = () => {
     storedPublicKey = null;
     storedPrivateKey = null;
+    if (fs.existsSync(PRIVATE_KEY_PATH)) fs.unlinkSync(PRIVATE_KEY_PATH);
+    if (fs.existsSync(PUBLIC_KEY_PATH)) fs.unlinkSync(PUBLIC_KEY_PATH);
     generateKeyPair();
     return storedPublicKey;
 };
@@ -93,7 +98,13 @@ export const encryptSessionKey = (aesKey) => {
  */
 export const decryptSessionKey = (encryptedSessionKey) => {
     const privateKey = getPrivateKey();
-    return crypto.privateDecrypt(privateKey, bufferFromHex(encryptedSessionKey));
+    const buffer = Buffer.from(encryptedSessionKey, 'base64');
+    
+    return crypto.privateDecrypt({
+        key: privateKey,
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: 'sha256'
+    }, buffer);
 };
 
 /**
@@ -117,11 +128,11 @@ export const encryptData = (plainText, aesKey) => {
  * 4. AES DECRYPTION UTILITY
  * Decrypts data using AES-256-CBC.
  */
-export const decryptData = (encryptedData, aesKey, ivHex) => {
-    const iv = Buffer.from(ivHex, 'hex');
+export const decryptData = (encryptedData, aesKey, ivBase64) => {
+    const iv = Buffer.from(ivBase64, 'base64');
     const decipher = crypto.createDecipheriv('aes-256-cbc', aesKey, iv);
     
-    let decrypted = decipher.update(encryptedData, 'hex', 'utf8');
+    let decrypted = decipher.update(encryptedData, 'base64', 'utf8');
     decrypted += decipher.final('utf8');
     
     return decrypted;
@@ -151,35 +162,25 @@ const bufferFromHex = (hexOrBuffer) => {
  * - Signatures prove who sent it and that it hasn't changed (Authenticity + Integrity).
  */
 
-/**
- * Signs data using SHA-256 Hashing + RSA Private Key
- */
+const canonicalStringify = (obj) => {
+    const allKeys = Object.keys(obj).sort();
+    return JSON.stringify(obj, allKeys);
+};
+
 export const signData = (data) => {
     const privateKey = getPrivateKey();
     const sign = crypto.createSign('SHA256');
-    
-    // Hash the data inside the update method
-    sign.update(JSON.stringify(data));
-    
-    // Create signature using Private Key
+    const canonicalData = canonicalStringify(data);
+    sign.update(canonicalData);
     const signature = sign.sign(privateKey, 'hex');
-    
-    // We also return the hash separately for demonstration/storage
-    const hash = crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex');
-
+    const hash = crypto.createHash('sha256').update(canonicalData).digest('hex');
     return { signature, hash };
 };
 
-/**
- * Verifies a signature using SHA-256 Hashing + RSA Public Key
- */
 export const verifySignature = (data, signature) => {
     const publicKey = getPublicKey();
     const verify = crypto.createVerify('SHA256');
-    
-    verify.update(JSON.stringify(data));
-    
-    // Verify using Public Key
+    verify.update(canonicalStringify(data));
     return verify.verify(publicKey, signature, 'hex');
 };
 

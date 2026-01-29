@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { PenTool, Shield, Check, FileCheck, Hash, AlertTriangle, RefreshCw, Zap, CheckCircle, Fingerprint } from 'lucide-react';
 import DashboardLayout from '../../components/dashboard-layout';
