@@ -17,7 +17,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (identifier: string, password: string) => Promise<{ success: boolean; requiresMfa?: boolean; message?: string }>;
   register: (userData: any) => Promise<{ success: boolean; message?: string }>;
-  verifyMfa: (identifier: string, otp: string) => Promise<{ success: boolean; message?: string }>;
+  verifyMfa: (identifier: string, otp: string) => Promise<{ success: boolean; message?: string; user?: User }>;
   logout: () => void;
   setUser: (user: User | null) => void;
   apiCall: (endpoint: string, options?: RequestInit) => Promise<{ ok: boolean; status: number; data: any }>;
@@ -75,7 +75,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const verifyMfa = async (identifier: string, otp: string): Promise<{ success: boolean; message?: string }> => {
+  const verifyMfa = async (identifier: string, otp: string): Promise<{ success: boolean; message?: string; user?: User }> => {
     try {
       const response = await fetch(`${API_URL}/auth/mfa-verify`, {
         method: 'POST',
@@ -89,7 +89,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(data.user);
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
-        return { success: true };
+        return { success: true, user: data.user };
       }
 
       return { success: false, message: data.message || 'Verification failed' };

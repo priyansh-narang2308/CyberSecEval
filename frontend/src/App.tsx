@@ -25,6 +25,7 @@ import EncodingPage from "./pages/security/encoding-page";
 import SecurityRisksPage from "./pages/security/security-risks";
 import SecurityInfoPage from "./pages/security/security-info";
 import EncryptionPage from "./pages/security/encryption-page";
+import SecurityLab from "./pages/security/security-lab";
 
 
 
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="/security/signatures" element={<DigitalSignaturePage />} />
               <Route path="/security/encoding" element={<EncodingPage />} />
               <Route path="/security/risks" element={<SecurityRisksPage />} />
+              <Route path="/security/lab" element={<SecurityLab />} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>

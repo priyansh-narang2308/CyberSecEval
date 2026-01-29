@@ -10,7 +10,8 @@ import {
   Key,
   Lock,
   FileCheck,
-  Grid3X3
+  Grid3X3,
+  Zap
 } from 'lucide-react';
 import { useAuth, type UserRole } from '../contexts/auth-context';
 import { useTheme } from '../contexts/theme-context';
@@ -64,7 +65,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role, userN
     { icon: Key, label: 'Key Exchange Info', href: '/security/keys' },
     { icon: Shield, label: 'Hashing & Signatures', href: '/security/hashing' },
     { icon: Grid3X3, label: 'Encoding Techniques', href: '/security/encoding' },
-    { icon: FileCheck, label: 'Risk Analysis', href: '/security/risks' },
+    { icon: Zap, label: 'Live Security Lab', href: '/security/lab' },
   ];
 
   const roleLinks = role === 'student' ? studentLinks : role === 'faculty' ? facultyLinks : adminLinks;

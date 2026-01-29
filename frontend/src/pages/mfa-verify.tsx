@@ -50,7 +50,9 @@ const MFAVerifyPage = () => {
                 title: 'Verification Successful',
                 description: 'Welcome to SecureExamVault',
             });
-            navigate('/dashboard/student');
+
+            const role = result.user?.role || 'student';
+            navigate(`/dashboard/${role}`);
         } else {
             toast({
                 title: 'Verification Failed',

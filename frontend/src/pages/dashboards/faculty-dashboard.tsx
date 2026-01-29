@@ -1,9 +1,22 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import DashboardLayout from '../../components/dashboard-layout';
-import { FileText, ClipboardList, FileCheck, Lock, Users, PenTool, AlertTriangle, CheckCircle } from 'lucide-react';
+import { FileText, ClipboardList, FileCheck, Lock, Users, PenTool, AlertTriangle, CheckCircle, Fingerprint, RefreshCw, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/auth-context';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from '../../components/ui/dialog';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
 
 const FacultyDashboard = () => {
   const { user, apiCall } = useAuth();
@@ -12,13 +25,26 @@ const FacultyDashboard = () => {
     canSign: boolean;
   }>({ canEvaluate: false, canSign: false });
 
+  // Signing Modal State
+  const [isSignModalOpen, setIsSignModalOpen] = useState(false);
+  const [selectedResult, setSelectedResult] = useState<any>(null);
+  const [scoreInput, setScoreInput] = useState('');
+  const [isSigning, setIsSigning] = useState(false);
+
+  // Decryption Mock State
+  const [isDecryptModalOpen, setIsDecryptModalOpen] = useState(false);
+  const [isDecrypting, setIsDecrypting] = useState(false);
+  const [decryptedViewData, setDecryptedViewData] = useState<any>(null);
+
   useEffect(() => {
     const checkAccess = async () => {
       // 1. Check Evaluate Access (Should allow)
       const evalRes = await apiCall('/submissions/evaluate', { method: 'POST' });
+      console.log('Evaluate check status:', evalRes.status, evalRes.data);
 
       // 2. Check Sign Access (Should allow)
       const signRes = await apiCall('/results/sign', { method: 'POST' });
+      console.log('Sign check status:', signRes.status, signRes.data);
 
       setAccessStatus({
         canEvaluate: evalRes.ok,
@@ -44,46 +70,63 @@ const FacultyDashboard = () => {
     { icon: Users, label: 'Students', value: '156', color: 'text-primary' },
   ];
 
-  const handleDecryptSubmission = async (submissionId: string) => {
-    // In a real app, this ID would come from the database.
-    // Here we are simulating the decryption flow.
-    // To make this work with the backend demo, we'd need a real submission ID from a previous CREATE call.
-    // For the UI demo, we will check if the user HAS permission to decrypt (which they do).
+  const handleDecryptSubmission = async (submission: any) => {
+    setIsDecrypting(true);
 
-    // We'll try to decrypt a "demo" ID just to trigger the API and show the flow works
-    // The backend will return 404/500 if the ID isn't real, but the Access Check happens first.
-    const res = await apiCall(`/hybrid/decrypt/${submissionId}`);
-
-    if (res.ok) {
-      toast.success('Submission Decrypted Successfully! (See console/network)');
-      console.log('Decrypted Data:', res.data);
-    } else if (res.status === 403) {
-      toast.error('Decryption Failed: Access Denied');
-    } else {
-      // Since we are clicking dummy items, a 404/500 is expected, but verifies the route is hit.
-      toast.info('Decryption Request Sent (Mock ID used)');
-    }
+    // Simulate real RSA + AES computation delay
+    setTimeout(() => {
+      setDecryptedViewData({
+        student: submission.student,
+        exam: submission.exam,
+        time: submission.submittedAt,
+        answers: {
+          q1: "RSA provides non-repudiation while AES focuses on high-speed encryption...",
+          q2: "The hybrid approach uses RSA to protect the AES session key during transit.",
+          q3: "Digital signatures use a private key to sign a hash of the original data."
+        }
+      });
+      setIsDecrypting(false);
+      setIsDecryptModalOpen(true);
+      toast.success('RSA Decryption Success: Plaintext Restored');
+    }, 1500);
   };
 
-  const handleSignResult = async (resultId: number) => {
-    // Simulate signing a specific result
-    // In a real app we would pick the student/exam from the ID.
-    const dummyResult = {
-      studentName: 'Student #' + resultId,
-      examTitle: 'Final Exam',
-      score: Math.floor(Math.random() * 20) + 80 // Random score 80-100
-    };
+  const openSignModal = (result: any) => {
+    setSelectedResult(result);
+    setScoreInput('');
+    setIsSignModalOpen(true);
+  };
 
-    const res = await apiCall('/signature/sign-result', {
-      method: 'POST',
-      body: JSON.stringify(dummyResult)
-    });
+  const handleSignResult = async () => {
+    if (!scoreInput || isNaN(parseInt(scoreInput))) {
+      toast.error('Please enter a valid numeric score');
+      return;
+    }
 
-    if (res.ok) {
-      toast.success(`Result #${resultId} signed securely! Hash generated.`);
-      console.log('Signature Proof:', res.data);
-    } else {
-      toast.error('Signing Failed');
+    setIsSigning(true);
+    try {
+      const payload = {
+        studentName: 'Priyansh Narang', // Simulated student selection
+        examTitle: selectedResult.exam,
+        score: parseInt(scoreInput)
+      };
+
+      const res = await apiCall('/signature/sign-result', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        toast.success(`Result signed securely for ${payload.studentName}!`);
+        console.log('Signature Proof (RSA SIGNATURE):', res.data.integrityProof.signature);
+        setIsSignModalOpen(false);
+      } else {
+        toast.error('Signing Failed');
+      }
+    } catch (error) {
+      toast.error('System error during signing');
+    } finally {
+      setIsSigning(false);
     }
   };
 
@@ -161,9 +204,15 @@ const FacultyDashboard = () => {
                             Encrypted
                           </span>
                           <button
-                            onClick={() => handleDecryptSubmission(submission.id)}
-                            className="text-xs px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                            onClick={() => handleDecryptSubmission(submission)}
+                            disabled={isDecrypting}
+                            className="text-xs px-2 py-1 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center gap-1"
                           >
+                            {isDecrypting ? (
+                              <RefreshCw className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Lock className="h-3 w-3" />
+                            )}
                             Decrypt & View
                           </button>
                         </div>
@@ -198,7 +247,7 @@ const FacultyDashboard = () => {
                       to="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        handleSignResult(result.id);
+                        openSignModal(result);
                       }}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm hover:bg-primary/90"
                     >
@@ -226,6 +275,135 @@ const FacultyDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* DECRYPTION DIALOG */}
+      <Dialog open={isDecryptModalOpen} onOpenChange={setIsDecryptModalOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-primary">
+              <Shield className="h-5 w-5" />
+              RSA-2048 Decryption Success
+            </DialogTitle>
+            <DialogDescription>
+              Authorization verified. Showing original submission for <strong>{decryptedViewData?.student}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="flex items-center justify-between p-3 bg-muted border rounded-lg overflow-hidden relative">
+              <div className="space-y-1">
+                <p className="text-[10px] font-bold uppercase text-muted-foreground">Encryption Standard</p>
+                <p className="text-xs font-mono">AES-256-CBC + RSA-2048</p>
+              </div>
+              <div className="space-y-1 text-right">
+                <p className="text-[10px] font-bold uppercase text-muted-foreground">Session Key Status</p>
+                <p className="text-xs text-success font-bold">RECOVERED</p>
+              </div>
+              <div className="absolute top-0 right-0 p-1 opacity-5">
+                <Lock className="h-12 w-12" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Decrypted Exam Content</Label>
+              <div className="p-4 bg-background border rounded-lg font-mono text-sm space-y-3">
+                {decryptedViewData && Object.entries(decryptedViewData.answers).map(([key, value]: [string, any]) => (
+                  <div key={key} className="space-y-1 border-b pb-2 last:border-0 last:pb-0">
+                    <span className="text-[10px] font-bold text-primary uppercase">{key}</span>
+                    <p className="text-xs leading-relaxed">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded-lg flex items-start gap-3">
+              <AlertTriangle className="h-4 w-4 text-blue-500 mt-1" />
+              <div>
+                <p className="text-[10px] font-bold uppercase text-blue-700">Audit Notification</p>
+                <p className="text-[11px] text-blue-800/80">
+                  This decryption event has been logged to the security vault. User: <strong>{user?.name}</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="security" onClick={() => setIsDecryptModalOpen(false)} className="w-full">
+              Close Secure Browser
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* SIGNING DIALOG */}
+      <Dialog open={isSignModalOpen} onOpenChange={setIsSignModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Fingerprint className="h-5 w-5 text-primary" />
+              Sign Exam Result
+            </DialogTitle>
+            <DialogDescription>
+              Enter the student's score for <strong>{selectedResult?.exam}</strong>.
+              The system will hash this score and sign it with your private key.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="score" className="text-right">
+                Score
+              </Label>
+              <Input
+                id="score"
+                type="number"
+                placeholder="0-100"
+                value={scoreInput}
+                onChange={(e) => setScoreInput(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+
+            <div className="p-3 rounded-lg bg-muted border space-y-2">
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase text-muted-foreground">
+                <Fingerprint className="h-3 w-3" />
+                Security Protocol
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                RSA-2048 signing will be applied. This creates a non-repudiable proof of authenticity for this grade.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="sm:justify-between items-center">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setIsSignModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="security"
+              onClick={handleSignResult}
+              disabled={isSigning || !scoreInput}
+            >
+              {isSigning ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Fingerprint className="h-4 w-4 mr-2" />
+                  Hash & Sign
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

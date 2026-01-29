@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import DashboardLayout from '../../components/dashboard-layout'
 import { Users, Key, FileText, Shield, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
@@ -12,6 +13,25 @@ const AdminDashboard = () => {
     canManageUsers: boolean;
     canWriteExams: boolean;
   }>({ canManageUsers: false, canWriteExams: false });
+
+  const [stats, setStats] = useState<any[]>([]);
+  const [recentLogs, setRecentLogs] = useState<any[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
+
+  const fetchDashboardData = async () => {
+    // 1. Fetch Stats
+    const statsRes = await apiCall('/admin/stats');
+    if (statsRes.ok) {
+      setStats(statsRes.data.stats);
+      setTotalUsers(statsRes.data.totalUsers);
+    }
+
+    // 2. Fetch Logs
+    const logsRes = await apiCall('/admin/logs');
+    if (logsRes.ok) {
+      setRecentLogs(logsRes.data);
+    }
+  };
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -29,6 +49,7 @@ const AdminDashboard = () => {
       if (!usersRes.ok || !examsRes.ok) {
         toast.error('Access Denied: Insufficient permissions');
       } else {
+        fetchDashboardData();
         toast.success('Access Verified: Admin privileges active');
       }
     };
@@ -36,27 +57,14 @@ const AdminDashboard = () => {
     if (user) {
       checkAccess();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
-  const stats = [
-    { icon: Users, label: 'Total Users', value: '892', color: 'text-primary' },
-    { icon: Key, label: 'Active Sessions', value: '47', color: 'text-success' },
-    { icon: FileText, label: 'System Logs', value: '1.2K', color: 'text-primary' },
-    { icon: AlertTriangle, label: 'Security Alerts', value: '2', color: 'text-destructive' },
-  ];
-
-  const recentLogs = [
-    { id: 1, action: 'User Login', user: 'john.doe@university.edu', time: '2 min ago', status: 'success' },
-    { id: 2, action: 'MFA Verification', user: 'alice.smith@university.edu', time: '5 min ago', status: 'success' },
-    { id: 3, action: 'Failed Login Attempt', user: 'unknown@external.com', time: '12 min ago', status: 'failed' },
-    { id: 4, action: 'Role Assignment', user: 'bob.wilson@university.edu', time: '1 hour ago', status: 'success' },
-  ];
-
-  const userDistribution = [
-    { role: 'Students', count: 756, color: 'bg-primary' },
-    { role: 'Faculty', count: 124, color: 'bg-success' },
-    { role: 'Administrators', count: 12, color: 'bg-warning' },
+  const statCards = [
+    { icon: Users, label: 'Total Users', value: totalUsers, color: 'text-primary' },
+    { icon: Key, label: 'Active Sessions', value: '1', color: 'text-success' },
+    { icon: FileText, label: 'Security Logs', value: recentLogs.length, color: 'text-primary' },
+    { icon: AlertTriangle, label: 'Security Alerts', value: recentLogs.filter(l => l.status === 'alert').length, color: 'text-destructive' },
   ];
 
   return (
@@ -81,7 +89,7 @@ const AdminDashboard = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat, index) => (
+          {statCards.map((stat, index) => (
             <div key={index} className="stat-card">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-muted">
@@ -101,7 +109,7 @@ const AdminDashboard = () => {
           <div className="bg-card border rounded-xl p-6">
             <h2 className="text-lg font-semibold text-foreground mb-4">User Distribution</h2>
             <div className="space-y-4">
-              {userDistribution.map((item, index) => (
+              {stats.map((item, index) => (
                 <div key={index}>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm text-muted-foreground">{item.role}</span>
@@ -110,7 +118,7 @@ const AdminDashboard = () => {
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className={`h-full ${item.color}`}
-                      style={{ width: `${(item.count / 892) * 100}%` }}
+                      style={{ width: `${totalUsers > 0 ? (item.count / totalUsers) * 100 : 0}%` }}
                     />
                   </div>
                 </div>
@@ -127,28 +135,36 @@ const AdminDashboard = () => {
           {/* Recent Activity Logs */}
           <div className="lg:col-span-2 bg-card border rounded-xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-foreground">Recent Activity</h2>
+              <h2 className="text-lg font-semibold text-foreground">Recent Activity (Live)</h2>
               <Link to="/dashboard/admin/logs" className="text-sm text-primary hover:underline">
                 View all logs
               </Link>
             </div>
             <div className="space-y-3">
-              {recentLogs.map((log) => (
-                <div key={log.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border">
-                  <div className="flex items-center gap-3">
-                    {log.status === 'success' ? (
-                      <CheckCircle className="h-4 w-4 text-success" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-destructive" />
-                    )}
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{log.action}</p>
-                      <p className="text-xs text-muted-foreground">{log.user}</p>
+              {recentLogs.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic text-center py-8">No security logs recorded yet.</p>
+              ) : (
+                recentLogs.map((log) => (
+                  <div key={log._id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border">
+                    <div className="flex items-center gap-3">
+                      {log.status === 'success' ? (
+                        <CheckCircle className="h-4 w-4 text-success" />
+                      ) : log.status === 'alert' ? (
+                        <AlertTriangle className="h-4 w-4 text-warning" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-destructive" />
+                      )}
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{log.action}</p>
+                        <p className="text-xs text-muted-foreground">{log.user}</p>
+                      </div>
                     </div>
+                    <span className="text-[10px] text-muted-foreground italic">
+                      {new Date(log.createdAt).toLocaleTimeString()}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{log.time}</span>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
