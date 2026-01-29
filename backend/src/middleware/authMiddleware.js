@@ -45,13 +45,8 @@ export const authorize = (resource, action) => {
         const role = req.user.role;
         const permissions = ACCESS_CONTROL_MATRIX[role] ? ACCESS_CONTROL_MATRIX[role][resource] : null;
 
-        /**
-         * ENFORCEMENT LOGIC:
-         * 1. Retrieve the permissions list for the current User Role and Target Resource.
-         * 2. Check if the requested Action exists in that list.
-         * 3. If yes, ALLOW.
-         * 4. If no (or no permissions exist), DENY with 403.
-         */
+        console.log(`[AUTH CHECK] User: ${req.user.username}, Role: ${role}, Resource: ${resource}, Action: ${action}, Permissions: ${JSON.stringify(permissions)}`);
+
         if (permissions && permissions.includes(action)) {
             next();
         } else {

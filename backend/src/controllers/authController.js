@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import SecurityLog from '../models/SecurityLog.js';
 import { hashContent, compareContent, generateOTP, generateToken } from '../utils/authUtils.js';
 import { sendOTP } from '../utils/mailUtils.js';
 
@@ -33,6 +34,12 @@ export const registerUser = async (req, res) => {
             mfaEnabled: mfaEnabled !== undefined ? mfaEnabled : true
         });
 
+        await SecurityLog.create({
+            action: 'User Registration',
+            user: email,
+            details: `New ${user.role} account created for ${name}.`
+        });
+
         res.status(201).json({
             message: 'User registered successfully. You can now login.',
             userId: user._id
@@ -53,11 +60,23 @@ export const loginUser = async (req, res) => {
         });
 
         if (!user) {
+            await SecurityLog.create({
+                action: 'Login Attempt',
+                user: identifier,
+                status: 'failed',
+                details: 'Non-existent user attempt.'
+            });
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const isPasswordMatch = await compareContent(password, user.passwordHash);
         if (!isPasswordMatch) {
+            await SecurityLog.create({
+                action: 'Login Attempt',
+                user: user.email,
+                status: 'failed',
+                details: 'Wrong password entered.'
+            });
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
@@ -72,6 +91,12 @@ export const loginUser = async (req, res) => {
 
             await sendOTP(user.email, otp);
 
+            await SecurityLog.create({
+                action: 'MFA Initiated',
+                user: user.email,
+                details: 'OTP sent to email for secondary authentication.'
+            });
+
             return res.status(200).json({
                 message: 'MFA required',
                 step: 'mfa-pending',
@@ -82,6 +107,12 @@ export const loginUser = async (req, res) => {
         const token = generateToken({
             userId: user._id,
             role: user.role
+        });
+
+        await SecurityLog.create({
+            action: 'User Login',
+            user: user.email,
+            details: 'SFA login (Direct)'
         });
 
         res.status(200).json({
@@ -123,6 +154,12 @@ export const verifyMFA = async (req, res) => {
         }
         const isOtpMatch = await compareContent(otp, user.mfaOTP);
         if (!isOtpMatch) {
+            await SecurityLog.create({
+                action: 'MFA Verification',
+                user: user.email,
+                status: 'failed',
+                details: 'Incorrect OTP entered.'
+            });
             return res.status(401).json({ message: 'Invalid OTP' });
         }
 
@@ -134,6 +171,13 @@ export const verifyMFA = async (req, res) => {
         user.mfaOTP = null;
         user.mfaExpiry = null;
         await user.save();
+
+        await SecurityLog.create({
+            action: 'MFA Verification',
+            user: user.email,
+            status: 'success',
+            details: 'Successful 2FA login.'
+        });
 
         res.status(200).json({
             message: 'Login successful',

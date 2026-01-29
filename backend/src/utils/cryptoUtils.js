@@ -46,6 +46,17 @@ export const generateKeyPair = () => {
     console.log('[CRYPTO] Keys generated successfully.');
 };
 
+/**
+ * Force generates a new RSA Key Pair for the server.
+ * All previous session keys encrypted with the old public key will become undecryptable.
+ */
+export const rotateKeyPair = () => {
+    storedPublicKey = null;
+    storedPrivateKey = null;
+    generateKeyPair();
+    return storedPublicKey;
+};
+
 export const getPublicKey = () => {
     if (!storedPublicKey) generateKeyPair();
     return storedPublicKey;

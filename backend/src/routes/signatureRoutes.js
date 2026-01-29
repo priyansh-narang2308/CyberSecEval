@@ -2,6 +2,7 @@ import express from 'express';
 import { protect, authorize } from '../middleware/authMiddleware.js';
 import { RESOURCES, ACTIONS, ROLES } from '../config/accessControlMatrix.js';
 import SignedResult from '../models/SignedResult.js';
+import SecurityLog from '../models/SecurityLog.js';
 import { signData, verifySignature } from '../utils/cryptoUtils.js';
 
 const router = express.Router();
@@ -28,8 +29,6 @@ router.post('/sign-result', protect, authorize(RESOURCES.RESULTS, ACTIONS.SIGN),
         };
 
         // 2. Generate Hash and Digital Signature
-        // - Hashing ensures data integrity.
-        // - Signing the hash with Private Key ensures Authenticity & Non-Repudiation.
         const { signature, hash } = signData(resultData);
 
         // 3. Store Signed Result
@@ -41,6 +40,13 @@ router.post('/sign-result', protect, authorize(RESOURCES.RESULTS, ACTIONS.SIGN),
             hash,
             signature,
             signedBy: req.user._id
+        });
+
+        // 4. Log the action
+        await SecurityLog.create({
+            action: 'Digital Signature',
+            user: req.user.email,
+            details: `Signed result for ${studentName} (${examTitle})`
         });
 
         res.status(201).json({
@@ -65,20 +71,23 @@ router.post('/sign-result', protect, authorize(RESOURCES.RESULTS, ACTIONS.SIGN),
  */
 router.post('/verify/:id', protect, async (req, res) => {
     try {
-        const result = await SignedResult.findById(req.params.id).populate('signedBy', 'name');
+        const result = await SignedResult.findById(req.params.id).populate('signedBy', 'name email');
 
         if (!result) {
             return res.status(404).json({ message: 'Result not found' });
         }
 
         // 1. Verify Signature
-        // We take the stored 'resultData' and re-verify it against the stored 'signature'
-        // using the Public Key.
-        // - If data was tampered in DB -> Verification Fails.
-        // - If signature was faked -> Verification Fails.
         const isValid = verifySignature(result.resultData, result.signature);
 
         if (isValid) {
+            await SecurityLog.create({
+                action: 'Integrity Verification',
+                user: req.user.email,
+                status: 'success',
+                details: `Verified signature for result ${result._id}. Data is untampered.`
+            });
+
             res.status(200).json({
                 status: 'VALID',
                 message: 'Signature is valid. Data Integrity confirmed.',
@@ -89,6 +98,13 @@ router.post('/verify/:id', protect, async (req, res) => {
                 }
             });
         } else {
+            await SecurityLog.create({
+                action: 'Integrity Verification',
+                user: req.user.email,
+                status: 'alert',
+                details: `SECURITY ALERT: Verification failed for result ${result._id}. Potential tampering detected!`
+            });
+
             res.status(400).json({
                 status: 'INVALID',
                 message: 'WARNING: Data integrity compromised! Signature verification failed.',
@@ -104,12 +120,34 @@ router.post('/verify/:id', protect, async (req, res) => {
     }
 });
 
+/**
+ * @route   GET /api/signature/results
+ * @access  Protected
+ * @desc    Retrieves all digitally signed results.
+ */
+router.get('/results', protect, async (req, res) => {
+    try {
+        const results = await SignedResult.find()
+            .populate('signedBy', 'name')
+            .sort({ createdAt: -1 });
+        res.status(200).json(results);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch signed results' });
+    }
+});
+
 // A malicious route to demonstrate tampering (For Educational/Demo purposes only)
 router.post('/tamper/:id', protect, async (req, res) => {
     try {
+        const result = await SignedResult.findById(req.params.id);
+        if (!result) return res.status(404).json({ message: 'Not found' });
+
         // Artificially modify the score without updating the signature
-        await SignedResult.updateOne({ _id: req.params.id }, { score: 100, 'resultData.score': 100 });
-        res.status(200).json({ message: 'Result tampered with! (Score changed to 100)' });
+        result.score = 99;
+        result.resultData.score = 99;
+        await result.save();
+        
+        res.status(200).json({ message: 'Result tampered! Score changed manually in DB.' });
     } catch (error) {
         res.status(500).json({ message: 'Tamper failed' });
     }
